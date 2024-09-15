@@ -1,5 +1,5 @@
-from script.fnv_class import FlirVideo
-import script.lock_in_imaging as lim
+from fnv_class import FlirVideo
+import lock_in_imaging as lim
 
 import tkinter as tk
 import os
