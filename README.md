@@ -1,6 +1,4 @@
-Here is the complete `README.md` that you can copy and paste:
-
-### Complete `README.md`
+###  README.md
 
 ```markdown
 # ATPP - Active Thermography Test Post-Processing
