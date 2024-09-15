@@ -3,4 +3,4 @@ numpy>=1.18.0
 scipy>=1.4.0
 scikit-learn>=0.22.0
 # fnv # This is a custom package to be donwloaded from the repository FLIR
-tkinter  # This might be pre-installed, depending on your environment
+# tkinter  # This might be pre-installed, depending on your environment
