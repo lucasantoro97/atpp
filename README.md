@@ -1,4 +1,4 @@
-### `README.md`
+###  README.md
 
 ```markdown
 # ATPP - Active Thermography Test Post-Processing
