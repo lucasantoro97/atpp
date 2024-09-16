@@ -1,16 +1,16 @@
-name: Deploy Sphinx Docs to GitHub Pages
+name: Build and Deploy Sphinx Docs
 
 on:
   push:
     branches:
-      - main
+      - main  # Or the branch you want to trigger on
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout the repository
+    - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Set up Python
@@ -23,8 +23,13 @@ jobs:
         pip install -r requirements.txt
         pip install sphinx
 
-    - name: Build the documentation
-      run: sphinx-build -b html docs/ docs/_build
+    - name: Generate API Documentation with sphinx-apidoc
+      run: |
+        sphinx-apidoc -o docs/ script/
+
+    - name: Build Sphinx documentation
+      run: |
+        sphinx-build -b html docs/ docs/_build
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
