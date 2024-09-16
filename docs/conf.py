@@ -34,7 +34,7 @@ autosummary_generate = True
 
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','_modules']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','_modules','**/*.rst.txt']
 
 
 
