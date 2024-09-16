@@ -15,6 +15,7 @@ from atpp.plt_style import set_plt_style
 set_plt_style()
 
 from atpp.plt_style import get_custom_cmap
+import time
 custom_cmap = get_custom_cmap()
 
 
@@ -96,15 +97,29 @@ def process_video(flir_video, results_dir):
     
 
     
-    f_stim=0.1
+    f_stim = 0.1
+
+    # Measure time for phase coherence imaging
+    start_time = time.time()
     amplitude_map, phase_map, phase_coherence_map = aim.phase_coherence_imaging(T, fs, f_stim)
-    # Apply synchronous demodulation
+    phase_coherence_time = time.time() - start_time
+
+    # Measure time for synchronous demodulation
+    start_time = time.time()
     demodulated_amplitude, demodulated_phase = aim.synchronous_demodulation(T, fs, f_stim)
+    synchronous_demodulation_time = time.time() - start_time
+
+    # Measure time for Hilbert transform analysis
+    start_time = time.time()
     mean_amplitude, mean_phase = aim.hilbert_transform_analysis(T)
-    t_reconstructed = aim.thermal_signal_reconstruction(T, order=5)
+    hilbert_transform_time = time.time() - start_time
+
+    # Measure time for modulated thermography
+    start_time = time.time()
     modulated_amplitude_map, modulated_phase_map = aim.modulated_thermography(T, fs, f_stim, harmonics=[2, 3])
-    
-    #mask data
+    modulated_thermography_time = time.time() - start_time
+
+    # Mask data
     mask = lim.mask_data(amplitude_map, threshold=0.5)
     amplitude_map = np.where(mask, amplitude_map, np.nan)
     phase_map = np.where(mask, phase_map, np.nan)
@@ -113,15 +128,16 @@ def process_video(flir_video, results_dir):
     demodulated_phase = np.where(mask, demodulated_phase, np.nan)
     mean_amplitude = np.where(mask, mean_amplitude, np.nan)
     mean_phase = np.where(mask, mean_phase, np.nan)
-    t_reconstructed = np.where(mask, t_reconstructed, np.nan)
     modulated_amplitude_map = np.where(mask, modulated_amplitude_map, np.nan)
     modulated_phase_map = np.where(mask, modulated_phase_map, np.nan)
+
     # Visualize the results
     plt.figure(figsize=(15, 15))
 
     # Find the bounding box of the masked data
     mask_indices = np.argwhere(mask)
     (y_start, x_start), (y_end, x_end) = mask_indices.min(0), mask_indices.max(0) + 1
+
     # Calculate percentiles to remove outliers
     vmin_amp, vmax_amp = np.percentile(amplitude_map[mask], [2, 98])
     vmin_phase, vmax_phase = np.percentile(phase_map[mask], [2, 98])
@@ -130,7 +146,6 @@ def process_video(flir_video, results_dir):
     vmin_demod_phase, vmax_demod_phase = np.percentile(demodulated_phase[mask], [2, 98])
     vmin_mean_amp, vmax_mean_amp = np.percentile(mean_amplitude[mask], [2, 98])
     vmin_mean_phase, vmax_mean_phase = np.percentile(mean_phase[mask], [2, 98])
-    vmin_t_reconstructed, vmax_t_reconstructed = np.percentile(t_reconstructed[mask], [2, 98])
     vmin_mod_amp, vmax_mod_amp = np.percentile(modulated_amplitude_map[mask], [2, 98])
     vmin_mod_phase, vmax_mod_phase = np.percentile(modulated_phase_map[mask], [2, 98])
 
@@ -184,20 +199,13 @@ def process_video(flir_video, results_dir):
     plt.ylim(y_end, y_start)  # Note: y-axis is inverted in images
 
     plt.subplot(3, 3, 8)
-    plt.imshow(t_reconstructed, cmap='gray', vmin=vmin_t_reconstructed, vmax=vmax_t_reconstructed)
-    plt.title('Reconstructed Thermal Signal')
-    plt.colorbar()
-    plt.xlim(x_start, x_end)
-    plt.ylim(y_end, y_start)  # Note: y-axis is inverted in images
-
-    plt.subplot(3, 3, 9)
     plt.imshow(modulated_amplitude_map, cmap='gray', vmin=vmin_mod_amp, vmax=vmax_mod_amp)
     plt.title('Modulated Amplitude Map')
     plt.colorbar()
     plt.xlim(x_start, x_end)
     plt.ylim(y_end, y_start)  # Note: y-axis is inverted in images
 
-    plt.subplot(3, 3, 10)
+    plt.subplot(3, 3, 9)
     plt.imshow(modulated_phase_map, cmap='gray', vmin=vmin_mod_phase, vmax=vmax_mod_phase)
     plt.title('Modulated Phase Map')
     plt.colorbar()
@@ -206,8 +214,19 @@ def process_video(flir_video, results_dir):
 
     plt.tight_layout()
     plt.show()
-    print('ok!')
-    return
+
+    # Print and save the profiling results
+    profiling_results = (
+        f"Phase Coherence Imaging Time: {phase_coherence_time:.4f} seconds\n"
+        f"Synchronous Demodulation Time: {synchronous_demodulation_time:.4f} seconds\n"
+        f"Hilbert Transform Analysis Time: {hilbert_transform_time:.4f} seconds\n"
+        f"Modulated Thermography Time: {modulated_thermography_time:.4f} seconds\n"
+    )
+
+    print(profiling_results)
+
+    with open("profiling_results.txt", "w") as file:
+        file.write(profiling_results)
 
 
 select_folder_and_process()
