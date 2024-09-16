@@ -4,6 +4,8 @@ from scipy import ndimage
 import matplotlib.pyplot as plt
 from sklearn.linear_model import RANSACRegressor, LinearRegression
 
+'''STILL TO BE REVIEWED AND REFACTORED'''
+
 n_frame_tamb = 100  # Constant for the number of ambient frames
 
 def gaussian(x, A, x0, sigma):

@@ -111,16 +111,49 @@ def process_video(flir_video, results_dir):
 
     # Measure time for Hilbert transform analysis
     start_time = ttime.time()
-    mean_amplitude, mean_phase = aim.hilbert_transform_analysis(T)
+    hil_amplitude, hil_phase = aim.hilbert_transform_analysis(T)
     hilbert_transform_time = ttime.time() - start_time
+    #calculate standard deviation of phase and amplitude along time axis for each pixel
+    # Only consider the last 10 seconds of data
+    last_10_seconds = time >= (time[-1] - 10)
+    hil_phase_last_10 = hil_phase[:, :, last_10_seconds]
+    hil_amplitude_last_10 = hil_amplitude[:, :, last_10_seconds]
+
+    phase_std = np.std(hil_phase_last_10, axis=2)
+    amplitude_std = np.std(hil_amplitude_last_10, axis=2)
+    
+    # # Plot the standard deviation of amplitude vs time for each pixel
+    # plt.figure()
+    # for i in range(0, amplitude_std.shape[0], 500):
+    #     for j in range(0, amplitude_std.shape[1], 500):
+    #         plt.plot(time, hil_amplitude[i, j, :], alpha=0.5)
+    # plt.xlabel('Time')
+    # plt.ylabel('Amplitude std')
+    # plt.title('Amplitude std vs Time for each pixel')
+    # plt.show()
+
+    # # Plot the standard deviation of phase vs time for each pixel
+    # plt.figure()
+    # for i in range(0, phase_std.shape[0], 500):
+    #     for j in range(0, phase_std.shape[1], 500):
+    #         plt.plot(time, hil_phase[i, j, :], alpha=0.5)
+    # plt.xlabel('Time')
+    # plt.ylabel('Phase std')
+    # plt.title('Phase std vs Time for each pixel')
+    # plt.show()
+
+    
+    #rename as mean amplitude and phase for lazy reasons
+    mean_amplitude = amplitude_std
+    mean_phase = phase_std
 
     # Measure time for modulated thermography
     start_time = ttime.time()
-    modulated_amplitude_map, modulated_phase_map = aim.modulated_thermography(T, fs, f_stim, harmonics=[2]) #just second harmonic
+    modulated_amplitude_map, modulated_phase_map = aim.modulated_thermography(T, fs, f_stim, harmonics=[3]) #just third harmonic
     modulated_thermography_time = ttime.time() - start_time
     #transform modulated amplitude map and phase from dictionary to np.array
-    modulated_amplitude_map = modulated_amplitude_map[2]
-    modulated_phase_map = modulated_phase_map[2]
+    modulated_amplitude_map = modulated_amplitude_map[3]
+    modulated_phase_map = modulated_phase_map[3]
     
 
     # Mask data

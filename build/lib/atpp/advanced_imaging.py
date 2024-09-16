@@ -102,15 +102,24 @@ def synchronous_demodulation(T, fs, f_stim):
 
 def hilbert_transform_analysis(T):
     """
-    The function `hilbert_transform_analysis` computes the mean amplitude and phase over time using the
-    Hilbert Transform on a 3D array representing signals.
-    
-    :param T: It seems like you were about to provide some information about the parameter `T` for the
-    `hilbert_transform_analysis` function. Could you please provide more details or specify what `T`
-    represents in this context?
-    :return: The `hilbert_transform_analysis` function returns the mean amplitude and mean phase
-    calculated from the Hilbert transform analysis of the input 3D array `T`.
+    Perform Hilbert Transform analysis on a 3D array.
+
+    This function computes the amplitude and phase of the analytic signal
+    obtained from the Hilbert Transform of each pixel's time series in the 
+    input 3D array.
+
+    Parameters:
+    T (numpy.ndarray): A 3D numpy array with shape (height, width, frames) 
+                       representing the input data.
+
+    Returns:
+    tuple: A tuple containing two 3D numpy arrays:
+        - amplitude (numpy.ndarray): The amplitude of the analytic signal 
+                                     with the same shape as T.
+        - phase (numpy.ndarray): The phase of the analytic signal with the 
+                                 same shape as T.
     """
+
     height, width, frames = T.shape
 
     # Initialize arrays
@@ -125,11 +134,7 @@ def hilbert_transform_analysis(T):
             amplitude[i, j, :] = np.abs(analytic_signal)
             phase[i, j, :] = np.unwrap(np.angle(analytic_signal))
 
-    # Optionally, compute mean amplitude and phase over time
-    mean_amplitude = np.mean(amplitude, axis=2)
-    mean_phase = np.mean(phase, axis=2)
-
-    return mean_amplitude, mean_phase
+    return amplitude, phase
 
 
 def thermal_signal_reconstruction(T, order=5):
