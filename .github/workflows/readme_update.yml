@@ -1,4 +1,4 @@
-name: Update README and Documentation
+name: Update README and Documentation v2
 
 on:
   push:
