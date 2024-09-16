@@ -1,9 +1,10 @@
 import atpp 
 from atpp.fnv_class import FlirVideo
 from atpp import lock_in_imaging as lim
-
-import tkinter as tk
 import os
+import tkinter as tk
+
+
 from tkinter import filedialog
 
 
@@ -32,6 +33,7 @@ def select_folder_and_process():
         None
     """
     root = tk.Tk()
+    
     root.withdraw()
     folder_selected = filedialog.askdirectory()
 
