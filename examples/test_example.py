@@ -1,3 +1,5 @@
+# The `TestExample` class contains unit tests for the `select_folder_and_process` and `process_video`
+# functions in the `example` module, using mock objects to isolate dependencies.
 import unittest
 """
 Unit tests for the example module.
@@ -24,6 +26,14 @@ sys.path.append('/home/luca/Documents/atpp/examples')
 
 
 class TestExample(unittest.TestCase):
+    """
+    TestExample is a test case class for testing the functionality of the example module.
+    Methods:
+        test_select_folder_and_process(mock_process_video, mock_FlirVideo, mock_listdir, mock_makedirs, mock_askdirectory):
+            Tests the select_folder_and_process function by mocking dependencies and verifying the expected behavior.
+        test_process_video(mock_lock_in_amplifier):
+            Tests the process_video function by mocking dependencies and verifying the expected behavior.
+    """
 
     @patch('example.filedialog.askdirectory')
     @patch('example.os.makedirs')
@@ -56,6 +66,17 @@ class TestExample(unittest.TestCase):
     
     @patch('example.lim.lock_in_amplifier')
     def test_process_video(self, mock_lock_in_amplifier):
+        """
+        Test the process_video function.
+        This test verifies the following:
+        1. A mock FlirVideo object is created.
+        2. The lock_in_amplifier function is mocked to return a specific value.
+        3. The process_video function is called with the mock FlirVideo object and a mock results path.
+        4. The lock_in_amplifier function is called with the correct arguments.
+        5. The process_video function prints 'ok!'.
+        Args:
+            mock_lock_in_amplifier (MagicMock): Mocked lock_in_amplifier function.
+        """
         # Create a mock FlirVideo object
         mock_flir_video = MagicMock()
         
