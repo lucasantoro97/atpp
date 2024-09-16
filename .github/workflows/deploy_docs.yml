@@ -25,6 +25,8 @@ jobs:
       - name: Build documentation
         run: |
           cd docs
+          sphinx-apidoc -o docs/_autosummary ./script
+          make clean
           make html
 
       - name: Upload build artifact
