@@ -44,6 +44,10 @@ jobs:
       id-token: write   # to verify the deployment originates from an appropriate source
       contents: write   # This grants permission to push to the repo
 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -54,7 +58,8 @@ jobs:
           name: github-pages
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        id: deployment
+        uses: actions/deploy-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html
