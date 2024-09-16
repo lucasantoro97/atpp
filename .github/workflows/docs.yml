@@ -1,35 +1,18 @@
-name: documentation
+name: Deploy Sphinx documentation to Pages
 
-on: [push, pull_request, workflow_dispatch]
-
-permissions:
-  contents: write
+on:
+  push:
+    branches: [master] # branch to trigger deployment
 
 jobs:
-  docs:
-    runs-on: ubuntu-latest
+  pages:
+    runs-on: ubuntu-20.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-
-      - name: Install dependencies
-        run: |
-          pip install sphinx sphinx_rtd_theme myst_parser
-
-      - name: Remove old build
-        run: |
-          rm -rf docs/_build  # Remove the old build directory if it exists
-
-      - name: Sphinx build
-        run: |
-          sphinx-build docs/ docs/_build/html  # Build the new documentation
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/  # Ensure correct publish directory
-          force_orphan: true
+    - id: deployment
+      uses: sphinx-notes/pages@v3
