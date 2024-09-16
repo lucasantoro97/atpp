@@ -27,6 +27,13 @@ jobs:
           cd docs
           make html
 
+      # Upload the build as an artifact for later use
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: github-pages
+          path: ./docs/_build/html
+
   # Deploy job
   deploy:
     needs: build
@@ -36,16 +43,18 @@ jobs:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Download the artifact uploaded from the build job
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: github-pages
+
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html
