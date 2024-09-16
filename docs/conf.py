@@ -30,6 +30,7 @@ autosummary_generate = True  # Automatically generate the summaries
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+autodoc_mock_imports = ["fnv"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -39,6 +40,13 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 # conf.py in the docs folder
+
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': True,
+    'show-inheritance': True,
+    'ignore-module-all': True,
+}
 
 
 
