@@ -65,20 +65,6 @@ flir_video.process_data()
 
 For a detailed guide on how to use ATPP, visit the [Usage Documentation](https://lucasantoro97.github.io/atpp/).
 
-## Citation
-
-If you use ATPP in your research, please consider citing it as follows:
-
-### BibTeX Citation
-```bibtex
-@misc{santoro2024atpp,
-  author = {Luca Santoro},
-  title = {ATPP - Active Thermography Test Post-Processing},
-  year = {2024},
-  howpublished = {\url{https://github.com/lucasantoro97/atpp}},
-  note = {Accessed: September 2024}
-}
-
 
 ## Contributing
 
@@ -91,6 +77,21 @@ If you encounter any issues or need support, feel free to check the [FAQ](https:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Citation
+
+If you use ATPP in your research, please consider citing it as follows:
+
+### BibTeX Citation
+```bibtex
+@misc{santoro2024atpp,
+    author = {Luca Santoro},
+    title = {ATPP - Active Thermography Test Post-Processing},
+    year = {2024},
+    howpublished = {\url{https://github.com/lucasantoro97/atpp}},
+    note = {Accessed: September 2024}
+}
+```
 
 ## Acknowledgments
 
