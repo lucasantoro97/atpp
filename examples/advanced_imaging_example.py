@@ -15,7 +15,7 @@ from atpp.plt_style import set_plt_style
 set_plt_style()
 
 from atpp.plt_style import get_custom_cmap
-import time
+import time as ttime
 custom_cmap = get_custom_cmap()
 
 
@@ -100,24 +100,28 @@ def process_video(flir_video, results_dir):
     f_stim = 0.1
 
     # Measure time for phase coherence imaging
-    start_time = time.time()
+    start_time = ttime.time()
     amplitude_map, phase_map, phase_coherence_map = aim.phase_coherence_imaging(T, fs, f_stim)
-    phase_coherence_time = time.time() - start_time
+    phase_coherence_time = ttime.time() - start_time
 
     # Measure time for synchronous demodulation
-    start_time = time.time()
+    start_time = ttime.time()
     demodulated_amplitude, demodulated_phase = aim.synchronous_demodulation(T, fs, f_stim)
-    synchronous_demodulation_time = time.time() - start_time
+    synchronous_demodulation_time = ttime.time() - start_time
 
     # Measure time for Hilbert transform analysis
-    start_time = time.time()
+    start_time = ttime.time()
     mean_amplitude, mean_phase = aim.hilbert_transform_analysis(T)
-    hilbert_transform_time = time.time() - start_time
+    hilbert_transform_time = ttime.time() - start_time
 
     # Measure time for modulated thermography
-    start_time = time.time()
-    modulated_amplitude_map, modulated_phase_map = aim.modulated_thermography(T, fs, f_stim, harmonics=[2, 3])
-    modulated_thermography_time = time.time() - start_time
+    start_time = ttime.time()
+    modulated_amplitude_map, modulated_phase_map = aim.modulated_thermography(T, fs, f_stim, harmonics=[2]) #just second harmonic
+    modulated_thermography_time = ttime.time() - start_time
+    #transform modulated amplitude map and phase from dictionary to np.array
+    modulated_amplitude_map = modulated_amplitude_map[2]
+    modulated_phase_map = modulated_phase_map[2]
+    
 
     # Mask data
     mask = lim.mask_data(amplitude_map, threshold=0.5)
