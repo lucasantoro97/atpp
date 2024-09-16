@@ -29,6 +29,7 @@ Before installation, ensure that the following dependencies are met:
 
 - Python 3.x
 - Required libraries (listed in `requirements.txt`)
+- fnv library from [Flir Science File SDK](https://www.flir.it/products/flir-science-file-sdk/?vertical=rd%20science&segment=solutions)
 
 ## Installation
 

@@ -10,14 +10,10 @@ with open('README.template.md', 'r') as template_file:
 # Define dynamic content
 description = "ATPP is a Python library for post-processing FLIR thermal camera data."
 installation_instructions = "pip install atpp"
-usage_examples = """
-```python
-from atpp import FlirVideo
+usage_examples = 
+with open('docs/usage_example.rst', 'r') as usage_file:
+    usage_examples = usage_file.read()
 
-# Example usage of ATPP library
-flir_video = FlirVideo('path_to_file.ats')
-flir_video.process_data()
-"""
 
 # Render README.md
 template = Template(readme_template) 
