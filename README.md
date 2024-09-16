@@ -37,7 +37,7 @@ To install ATPP, follow these steps:
 ```bash
 git clone https://github.com/lucasantoro97/atpp.git
 cd atpp
-pip install .
+pip install 
 ```
 
 To install directly from PyPI (coming soon), use:
