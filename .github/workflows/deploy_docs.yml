@@ -3,7 +3,7 @@ name: Deploy Documentation
 on:
   push:
     branches:
-      - main  # Change this to your default branch if different
+      - main
 
 jobs:
   build:
@@ -27,29 +27,27 @@ jobs:
           cd docs
           make html
 
-      # Upload the build as an artifact for later use
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3  # Updated to v3
+        uses: actions/upload-artifact@v3
         with:
           name: github-pages
           path: ./docs/_build/html
 
-  # Deploy job
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     permissions:
-      pages: write      # to deploy to Pages
+      pages: write      # to deploy to GitHub Pages
       id-token: write   # to verify the deployment originates from an appropriate source
+      contents: write   # This grants permission to push to the repo
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Download the artifact uploaded from the build job
       - name: Download build artifact
-        uses: actions/download-artifact@v3  # Updated to v3
+        uses: actions/download-artifact@v3
         with:
           name: github-pages
 
@@ -58,3 +56,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html
+
