@@ -12,17 +12,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # Updated from v2 to v3
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v4  # Updated from v2 to v4
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.x'  # Adjust Python version as needed
+          python-version: '3.x'  # Adjust to the desired Python version
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install sphinx  # Install Sphinx
+          pip install -r requirements.txt  # Install other dependencies from requirements.txt
 
       - name: Build documentation
         run: |
@@ -32,4 +33,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html  # Ensure the directory is correct
+          publish_dir: docs/_build/html
