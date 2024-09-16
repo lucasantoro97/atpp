@@ -29,6 +29,7 @@ Before installation, ensure that the following dependencies are met:
 
 - Python 3.x
 - Required libraries (listed in `requirements.txt`)
+- fnv library from [Flir Science File SDK](https://www.flir.it/products/flir-science-file-sdk/?vertical=rd%20science&segment=solutions)
 
 ## Installation
 
@@ -54,12 +55,38 @@ Once installed, ATPP can be used with the following commands:
 
 ```bash
 
-```python
-from atpp import FlirVideo
+Usage Guide
+===========
 
-# Example usage of ATPP library
-flir_video = FlirVideo('path_to_file.ats')
-flir_video.process_data()
+This section explains how to use ATPP after installation. Below are some typical usage examples and commands.
+
+Basic Usage
+-----------
+
+Once ATPP is installed, you can use the following commands:
+
+.. code-block:: bash
+
+   atpp process <input_data>
+
+This will run the default processing pipeline on the provided thermography data.
+
+Advanced Options
+----------------
+
+You can pass in various flags for more control:
+
+.. code-block:: bash
+
+   atpp process <input_data> --filter noise_reduction --visualize true
+
+This will apply noise reduction filtering and enable visualization for the thermography data.
+
+For a full list of commands and options, use:
+
+.. code-block:: bash
+
+   atpp --help
 
 ```
 
