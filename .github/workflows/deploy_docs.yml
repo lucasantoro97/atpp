@@ -31,7 +31,13 @@ jobs:
       # Step 4: Build Sphinx documentation using Make
       - name: Build Documentation
         run: |
-          make -C docs html  # This assumes your Makefile is in the docs directory
+          make -C docs clean  # Clean the previous build
+          rm -rf docs/_autosummary  # Remove the autosummary folder
+          
+          sphinx-apidoc -o docs/_autosummary/script ./script
+          sphinx-apidoc -o docs/_autosummary/examples ./examples
+
+          make -C docs html  # Rebuild the documentation
 
       # Step 5: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
@@ -42,3 +48,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html  # Ensure this is the correct build output directory
           force_orphan: true  # Creates an orphan gh-pages branch for clean deployments
+
+      # Step 6: Show website URL in GitHub Action summary
+      - name: Show Website URL
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}  # Only show on push to main branch
+        run: |
+          echo "Documentation deployed! Visit the site at: https://<YOUR_GITHUB_USERNAME>.github.io/<YOUR_REPOSITORY_NAME>/" >> $GITHUB_STEP_SUMMARY
