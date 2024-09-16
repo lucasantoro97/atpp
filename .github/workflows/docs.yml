@@ -1,18 +1,24 @@
-name: Build and publish to github repo
+name: "Sphinx: Render docs"
 
-on:
-  release:
-    types: [published]
+on: push
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Deploy
-        uses: peterhs73/sphinx-docs-action@v0.1.0
-        with:
-          python-version: 3.8
-          docs-source: docs/
-          pyproject-path: .[docs]
-          external-repo: peterhs73/sphinx-docs
-          deploy-token: ${{secrets.PRIVATE_TOKEN}}
+    - uses: actions/checkout@v4
+    - name: Build HTML
+      uses: ammaraskar/sphinx-action@master
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-docs
+        path: docs/build/html/
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/build/html
