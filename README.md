@@ -38,58 +38,20 @@ To install ATPP, follow these steps:
 ```bash
 git clone https://github.com/lucasantoro97/atpp.git
 cd atpp
-pip install 
+pip install .
 ```
 
-To install directly from PyPI (coming soon), use:
-
-```bash
-pip install atpp
-```
 
 For more detailed installation instructions, refer to the [Installation Guide](https://lucasantoro97.github.io/atpp/).
 
 ## Usage
 
-Once installed, ATPP can be used with the following commands:
+Once installed, ATPP can be used with the following commands to see the first frame of the video:
 
 ```bash
-Usage Guide
-===========
+import atpp
 
-This section explains how to use ATPP after installation. Below are some
-typical usage examples and commands.
-
-Basic Usage
------------
-
-Once ATPP is installed, you can use the following commands:
-
-``` {.bash}
-atpp process <input_data>
-```
-
-This will run the default processing pipeline on the provided
-thermography data.
-
-Advanced Options
-----------------
-
-You can pass in various flags for more control:
-
-``` {.bash}
-atpp process <input_data> --filter noise_reduction --visualize true
-```
-
-This will apply noise reduction filtering and enable visualization for
-the thermography data.
-
-For a full list of commands and options, use:
-
-``` {.bash}
-atpp --help
-```
-
+atpp.process('<input flir video>',visualize=True)
 ```
 
 For a detailed guide on how to use ATPP, visit the [Usage Documentation](https://lucasantoro97.github.io/atpp/).
