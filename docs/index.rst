@@ -17,10 +17,19 @@ Overview
 
 ATPP provides robust post-processing for thermography data, offering features such as noise reduction, thermal visualization, and data filtering. Whether you are a researcher, engineer, or thermography enthusiast, ATPP can streamline your workflow and help you obtain valuable insights from your thermal data.
 
+
 Contents
 --------
 
-Below you will find links to all the key sections of this documentation. Start by exploring the main modules, examples, or installation instructions.
+.. toctree::
+   :maxdepth: 2
+   :caption: Table of Contents
+
+   installation
+   usage
+   api
+   contributing
+   faq
 
 Modules
 -------
@@ -29,10 +38,9 @@ Modules
    :maxdepth: 2
    :caption: Modules:
 
-   script
-   advanced_imaging_module
-   fnv_class_module
-   lock_in_diffusivity_module
+   _autosummary/script/modules
+   _autosummary/examples/modules
+
 
 Additional Resources
 --------------------
