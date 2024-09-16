@@ -62,5 +62,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          publish_dir: docs/_build/html
+          publish_dir: docs/_build/
 
