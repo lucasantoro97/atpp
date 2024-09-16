@@ -27,6 +27,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r docs/requirements.txt
+          pip install -r requirements.txt
 
       # Step 4: Build Sphinx documentation using Make
       - name: Build Documentation
@@ -47,12 +48,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html  # Ensure this is the correct build output directory
           commit_message: ${{ github.event.head_commit.message }}
-          # force_orphan: true  # Creates an orphan gh-pages branch for clean deployments
 
       # Step 6: Show website URL in GitHub Action summary
       - name: Show Website URL
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}  # Only show on push to main branch
         run: |
-            REPO_NAME=$(echo "${GITHUB_REPOSITORY}" | awk -F'/' '{print $2}')
-            USER_NAME=$(echo "${GITHUB_REPOSITORY}" | awk -F'/' '{print $1}')
-            echo "Documentation deployed! Visit the site at: https://${USER_NAME}.github.io/${REPO_NAME}/" >> $GITHUB_STEP_SUMMARY
+          REPO_NAME=$(echo "${GITHUB_REPOSITORY}" | awk -F'/' '{print $2}')
+          USER_NAME=$(echo "${GITHUB_REPOSITORY}" | awk -F'/' '{print $1}')
+          echo "Documentation deployed! Visit the site at: https://${USER_NAME}.github.io/${REPO_NAME}/" >> $GITHUB_STEP_SUMMARY
