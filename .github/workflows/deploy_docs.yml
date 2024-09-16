@@ -42,11 +42,11 @@ jobs:
       # Step 5: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}  # Only deploy on push to main branch
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html  # Ensure this is the correct build output directory
+          commit_message: ${{ github.event.head_commit.message }}
           # force_orphan: true  # Creates an orphan gh-pages branch for clean deployments
 
       # Step 6: Show website URL in GitHub Action summary
