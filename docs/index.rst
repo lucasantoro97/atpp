@@ -49,7 +49,6 @@ Contents
 
    installation
    usage
-   api
    contributing
    faq
 

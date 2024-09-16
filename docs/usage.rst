@@ -11,7 +11,9 @@ Once ATPP is installed, you can use the following commands:
 
 .. code-block:: bash
 
-   atpp process <input_data>
+   import atpp
+
+   atpp.process('<input flir video>')
 
 This will run the default processing pipeline on the provided thermography data.
 
@@ -22,7 +24,7 @@ You can pass in various flags for more control:
 
 .. code-block:: bash
 
-   atpp process <input_data> --filter noise_reduction --visualize true
+   atpp.process <input_data> --filter noise_reduction --visualize true
 
 This will apply noise reduction filtering and enable visualization for the thermography data.
 

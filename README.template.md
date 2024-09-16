@@ -38,23 +38,20 @@ To install ATPP, follow these steps:
 ```bash
 git clone https://github.com/lucasantoro97/atpp.git
 cd atpp
-pip install 
+pip install .
 ```
 
-To install directly from PyPI (coming soon), use:
-
-```bash
-pip install atpp
-```
 
 For more detailed installation instructions, refer to the [Installation Guide](https://lucasantoro97.github.io/atpp/).
 
 ## Usage
 
-Once installed, ATPP can be used with the following commands:
+Once installed, ATPP can be used with the following commands to see the first frame of the video:
 
 ```bash
-{{ usage_examples }}
+import atpp
+
+atpp.process('<input flir video>',visualize=True)
 ```
 
 For a detailed guide on how to use ATPP, visit the [Usage Documentation](https://lucasantoro97.github.io/atpp/).

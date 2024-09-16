@@ -1,5 +1,6 @@
-from fnv_class import FlirVideo
-import lock_in_imaging as lim
+import atpp 
+from atpp.fnv_class import FlirVideo
+from atpp import lock_in_imaging as lim
 
 import tkinter as tk
 import os
