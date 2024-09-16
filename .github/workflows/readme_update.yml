@@ -12,6 +12,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Set Git user
+      run: |
+        git config --global user.email "lcsantoro97@gmail.com"
+        git config --global user.name "Luca Santoro"
+
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
