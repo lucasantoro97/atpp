@@ -17,6 +17,27 @@ Overview
 
 ATPP provides robust post-processing for thermography data, offering features such as noise reduction, thermal visualization, and data filtering. Whether you are a researcher, engineer, or thermography enthusiast, ATPP can streamline your workflow and help you obtain valuable insights from your thermal data.
 
+Citation
+--------
+
+If you use ATPP in your research, please consider citing it as follows:
+
+**BibTeX Citation**:
+
+.. code-block:: bibtex
+
+   @misc{santoro2024atpp,
+     author = {Luca Santoro},
+     title = {ATPP - Active Thermography Test Post-Processing},
+     year = {2024},
+     howpublished = {\url{https://github.com/lucasantoro97/atpp}},
+     note = {Accessed: September 2024}
+   }
+
+**Plain Text Citation**:
+
+Santoro, L. (2024). *ATPP - Active Thermography Test Post-Processing*. Available at: https://github.com/lucasantoro97/atpp (Accessed: September 2024).
+
 
 Contents
 --------
