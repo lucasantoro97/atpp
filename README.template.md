@@ -11,8 +11,8 @@
 
 Active Thermography Test Post-Processing (ATPP) is a powerful tool designed to help users analyze and process thermography data. This application offers a range of post-processing techniques, including data filtering, noise reduction, and advanced visualization options for enhanced analysis.
 
-- **Author**: {{ author }}
-- **Version**: {{ release }}
+- **Author**: Luca Santoro
+- **Version**: 0.1
 - **License**: MIT
 
 ## Features
@@ -40,7 +40,11 @@ To install ATPP, follow these steps:
 {{ installation_instructions }}
 ```
 
+To install directly from PyPI, use:
 
+```bash
+pip install atpp
+```
 To install directly from PyPI (coming soon), use:
 
 ```bash
