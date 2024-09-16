@@ -2,6 +2,7 @@ import os
 import sys
 from jinja2 import Template
 from jinja2 import Environment, FileSystemLoader
+from pypandoc import convert_text
 
 # Load README template
 with open('README.template.md', 'r') as template_file:
@@ -11,7 +12,8 @@ with open('README.template.md', 'r') as template_file:
 description = "ATPP is a Python library for post-processing FLIR thermal camera data."
 installation_instructions = "pip install atpp"
 with open('docs/usage.rst', 'r') as usage_file:
-    usage_examples = usage_file.read()
+    usage_rst = usage_file.read()
+    usage_examples = convert_text(usage_rst, 'md', format='rst')
 
 
 # Render README.md
