@@ -40,7 +40,8 @@ To install ATPP, follow these steps:
 {{ installation_instructions }}
 ```
 
-To install directly from PyPI, use:
+
+To install directly from PyPI (coming soon), use:
 
 ```bash
 pip install atpp
