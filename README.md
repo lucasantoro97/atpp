@@ -7,7 +7,7 @@
 
 ## Overview
 
-
+ATPP is a Python library for post-processing FLIR thermal camera data.
 
 Active Thermography Test Post-Processing (ATPP) is a powerful tool designed to help users analyze and process thermography data. This application offers a range of post-processing techniques, including data filtering, noise reduction, and advanced visualization options for enhanced analysis.
 
@@ -37,10 +37,14 @@ Before installation, ensure that the following dependencies are met:
 To install ATPP, follow these steps:
 
 ```bash
-
+pip install atpp
 ```
 
+To install directly from PyPI, use:
 
+```bash
+pip install atpp
+```
 To install directly from PyPI (coming soon), use:
 
 ```bash
@@ -54,6 +58,13 @@ For more detailed installation instructions, refer to the [Installation Guide](h
 Once installed, ATPP can be used with the following commands:
 
 ```bash
+
+```python
+from atpp import FlirVideo
+
+# Example usage of ATPP library
+flir_video = FlirVideo('path_to_file.ats')
+flir_video.process_data()
 
 ```
 
