@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>advanced_imaging &mdash; atpp 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            atpp
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">atpp</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">advanced_imaging</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for advanced_imaging</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">hilbert</span>
+
+<div class="viewcode-block" id="phase_coherence_imaging">
+<a class="viewcode-back" href="../_autosummary/advanced_imaging.html#advanced_imaging.phase_coherence_imaging">[docs]</a>
+<span class="k">def</span> <span class="nf">phase_coherence_imaging</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">f_stim</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The function `phase_coherence_imaging` calculates the amplitude, phase, and phase coherence of a</span>
+<span class="sd">    given 3D signal array `T` with respect to a specified stimulus frequency `f_stim` and sampling</span>
+<span class="sd">    frequency `fs`.</span>
+<span class="sd">    </span>
+<span class="sd">    :param T: The parameter `T` in the `phase_coherence_imaging` function represents a 3D numpy array</span>
+<span class="sd">    that contains the image data over time. The dimensions of this array are `(height, width, frames)`,</span>
+<span class="sd">    where `height` and `width` represent the spatial dimensions of the image,</span>
+<span class="sd">    :param fs: The parameter `fs` in the `phase_coherence_imaging` function represents the sampling</span>
+<span class="sd">    frequency of the signal. It is used to create the time vector `t` based on the number of frames in</span>
+<span class="sd">    the input data `T`. This sampling frequency is essential for generating the reference sinusoidal</span>
+<span class="sd">    signals at</span>
+<span class="sd">    :param f_stim: The `f_stim` parameter in the `phase_coherence_imaging` function represents the</span>
+<span class="sd">    frequency of the stimulus signal that is being used in the computation. This frequency is used to</span>
+<span class="sd">    generate reference sinusoidal signals (sine and cosine) for comparison with the input signal in</span>
+<span class="sd">    order to calculate the phase</span>
+<span class="sd">    :return: The function `phase_coherence_imaging` returns three arrays: `amplitude`, `phase`, and</span>
+<span class="sd">    `phase_coherence`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get dimensions</span>
+    <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">frames</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># Time vector</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
+
+    <span class="c1"># Reference signals</span>
+    <span class="n">ref_sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f_stim</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">ref_cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f_stim</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Initialize arrays</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+
+    <span class="c1"># Compute In-phase (I) and Quadrature (Q) components</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="p">):</span>
+            <span class="n">signal</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">signal</span> <span class="o">*</span> <span class="n">ref_cos</span><span class="p">)</span>
+            <span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">signal</span> <span class="o">*</span> <span class="n">ref_sin</span><span class="p">)</span>
+
+    <span class="c1"># Calculate amplitude and phase</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">I</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">Q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+
+    <span class="c1"># Phase coherence computation</span>
+    <span class="c1"># Compute phase difference with neighboring pixels</span>
+    <span class="n">phase_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">width</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">phase</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span>
+                <span class="n">phase</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span>
+                <span class="n">phase</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">phase</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="n">phase_diff</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">([</span><span class="n">phase</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">neighbor</span> <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">])</span>
+
+    <span class="c1"># Normalize phase coherence map</span>
+    <span class="n">phase_coherence</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">phase_diff</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">phase_diff</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">phase_coherence</span></div>
+
+
+<div class="viewcode-block" id="synchronous_demodulation">
+<a class="viewcode-back" href="../_autosummary/advanced_imaging.html#advanced_imaging.synchronous_demodulation">[docs]</a>
+<span class="k">def</span> <span class="nf">synchronous_demodulation</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">f_stim</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The function `synchronous_demodulation` performs synchronous demodulation on a 3D array of</span>
+<span class="sd">    time-domain signals to extract amplitude and phase information using reference sinusoidal signals.</span>
+<span class="sd">    </span>
+<span class="sd">    :param T: It seems like the description of the parameter `T` is missing. Could you please provide</span>
+<span class="sd">    more information about what `T` represents in the context of the `synchronous_demodulation`</span>
+<span class="sd">    function?</span>
+<span class="sd">    :param fs: The parameter `fs` represents the sampling frequency of the signal. It is the number of</span>
+<span class="sd">    samples obtained in one second</span>
+<span class="sd">    :param f_stim: f_stim is the frequency of the stimulus signal used for synchronous demodulation</span>
+<span class="sd">    :return: The function `synchronous_demodulation` returns two arrays: `amplitude` and `phase`. The</span>
+<span class="sd">    `amplitude` array contains the calculated amplitude values for each pixel in the input data, while</span>
+<span class="sd">    the `phase` array contains the calculated phase values for each pixel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">frames</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
+
+    <span class="c1"># Reference signals</span>
+    <span class="n">ref_sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f_stim</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">ref_cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f_stim</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Initialize arrays</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+
+    <span class="c1"># Demodulate</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="p">):</span>
+            <span class="n">signal</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">frames</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">signal</span> <span class="o">*</span> <span class="n">ref_cos</span><span class="p">)</span>
+            <span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">frames</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">signal</span> <span class="o">*</span> <span class="n">ref_sin</span><span class="p">)</span>
+
+    <span class="c1"># Calculate amplitude and phase</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">I</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">Q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">phase</span></div>
+
+
+
+<div class="viewcode-block" id="hilbert_transform_analysis">
+<a class="viewcode-back" href="../_autosummary/advanced_imaging.html#advanced_imaging.hilbert_transform_analysis">[docs]</a>
+<span class="k">def</span> <span class="nf">hilbert_transform_analysis</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The function `hilbert_transform_analysis` computes the mean amplitude and phase over time using the</span>
+<span class="sd">    Hilbert Transform on a 3D array representing signals.</span>
+<span class="sd">    </span>
+<span class="sd">    :param T: It seems like you were about to provide some information about the parameter `T` for the</span>
+<span class="sd">    `hilbert_transform_analysis` function. Could you please provide more details or specify what `T`</span>
+<span class="sd">    represents in this context?</span>
+<span class="sd">    :return: The `hilbert_transform_analysis` function returns the mean amplitude and mean phase</span>
+<span class="sd">    calculated from the Hilbert transform analysis of the input 3D array `T`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">frames</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># Initialize arrays</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">frames</span><span class="p">))</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">frames</span><span class="p">))</span>
+
+    <span class="c1"># Apply Hilbert Transform</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="p">):</span>
+            <span class="n">signal</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">analytic_signal</span> <span class="o">=</span> <span class="n">hilbert</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+            <span class="n">amplitude</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">analytic_signal</span><span class="p">)</span>
+            <span class="n">phase</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">analytic_signal</span><span class="p">))</span>
+
+    <span class="c1"># Optionally, compute mean amplitude and phase over time</span>
+    <span class="n">mean_amplitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">mean_phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mean_amplitude</span><span class="p">,</span> <span class="n">mean_phase</span></div>
+
+
+
+<div class="viewcode-block" id="thermal_signal_reconstruction">
+<a class="viewcode-back" href="../_autosummary/advanced_imaging.html#advanced_imaging.thermal_signal_reconstruction">[docs]</a>
+<span class="k">def</span> <span class="nf">thermal_signal_reconstruction</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The function `thermal_signal_reconstruction` reconstructs thermal signals using polynomial fitting</span>
+<span class="sd">    on the logarithm of the input signal.</span>
+<span class="sd">    </span>
+<span class="sd">    :param T: It seems like you were about to provide some information about the parameter `T` in the</span>
+<span class="sd">    `thermal_signal_reconstruction` function. Could you please provide more details or specify the shape</span>
+<span class="sd">    and type of the `T` parameter so that I can assist you further with the function?</span>
+<span class="sd">    :param order: The `order` parameter in the `thermal_signal_reconstruction` function represents the</span>
+<span class="sd">    degree of the polynomial used for fitting the signal data. A higher order polynomial can capture</span>
+<span class="sd">    more complex patterns in the data but may also be more prone to overfitting. You can adjust the</span>
+<span class="sd">    `order` parameter to control, defaults to 5 (optional)</span>
+<span class="sd">    :return: The function `thermal_signal_reconstruction` returns the reconstructed thermal signal array</span>
+<span class="sd">    `T_reconstructed`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">frames</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">log_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">frames</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># Initialize reconstructed signal array</span>
+    <span class="n">T_reconstructed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="p">):</span>
+            <span class="n">signal</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">log_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">signal</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>  <span class="c1"># Avoid log(0)</span>
+            <span class="c1"># Polynomial fitting</span>
+            <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">log_time</span><span class="p">,</span> <span class="n">log_signal</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+            <span class="c1"># Reconstruct signal</span>
+            <span class="n">log_signal_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">log_time</span><span class="p">)</span>
+            <span class="n">T_reconstructed</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_signal_fit</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">T_reconstructed</span></div>
+
+
+
+<div class="viewcode-block" id="modulated_thermography">
+<a class="viewcode-back" href="../_autosummary/advanced_imaging.html#advanced_imaging.modulated_thermography">[docs]</a>
+<span class="k">def</span> <span class="nf">modulated_thermography</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">f_stim</span><span class="p">,</span> <span class="n">harmonics</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The function `modulated_thermography` performs demodulation on a thermal image sequence using</span>
+<span class="sd">    modulated thermography technique to extract amplitude and phase information for specified harmonics.</span>
+<span class="sd">    </span>
+<span class="sd">    :param T: It seems like you were about to provide some information about the parameter T in the</span>
+<span class="sd">    `modulated_thermography` function. Could you please specify what T represents in this context?</span>
+<span class="sd">    :param fs: The parameter `fs` in the `modulated_thermography` function represents the sampling</span>
+<span class="sd">    frequency of the thermal data `T`. It is used to calculate the time vector `t` based on the number</span>
+<span class="sd">    of frames in the data. If you have any more questions or need further clarification, feel</span>
+<span class="sd">    :param f_stim: The `f_stim` parameter in the `modulated_thermography` function represents the</span>
+<span class="sd">    frequency of the stimulus signal used in modulated thermography. This frequency is used to generate</span>
+<span class="sd">    reference signals for demodulation at different harmonics</span>
+<span class="sd">    :param harmonics: The `harmonics` parameter in the `modulated_thermography` function is a list that</span>
+<span class="sd">    specifies the harmonics for which you want to analyze the modulated thermography data. By default,</span>
+<span class="sd">    the function calculates the amplitude and phase for the 2nd and 3rd harmonics</span>
+<span class="sd">    :return: The function `modulated_thermography` returns two dictionaries: `amplitude` and `phase`.</span>
+<span class="sd">    The `amplitude` dictionary contains the calculated amplitudes for each harmonic specified in the</span>
+<span class="sd">    `harmonics` list, while the `phase` dictionary contains the calculated phases for each harmonic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">frames</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs</span>
+
+    <span class="c1"># Initialize dictionaries to hold amplitude and phase for each harmonic</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">harmonics</span><span class="p">:</span>
+        <span class="c1"># Reference signals for each harmonic</span>
+        <span class="n">ref_sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f_stim</span> <span class="o">*</span> <span class="n">h</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">ref_cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f_stim</span> <span class="o">*</span> <span class="n">h</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+
+        <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+
+        <span class="c1"># Demodulate</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="p">):</span>
+                <span class="n">signal</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">frames</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">signal</span> <span class="o">*</span> <span class="n">ref_cos</span><span class="p">)</span>
+                <span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">frames</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">signal</span> <span class="o">*</span> <span class="n">ref_sin</span><span class="p">)</span>
+
+        <span class="c1"># Store amplitude and phase</span>
+        <span class="n">amplitude</span><span class="p">[</span><span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">I</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">Q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">phase</span><span class="p">[</span><span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">phase</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Luca Santoro.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
