@@ -6,21 +6,14 @@
 
 ## Introduction
 
-ATPP is a Python library for post-processing FLIR thermal camera data.
+{{ description }}
 
 ## Installation
 
 ```bash
-pip install atpp
+{{ installation_instructions }}
 Usage
-
-```python
-from atpp import FlirVideo
-
-# Example usage of ATPP library
-flir_video = FlirVideo('path_to_file.ats')
-flir_video.process_data()
-
+{{ usage_examples }}
 
 License
 This project is licensed under the MIT License.
