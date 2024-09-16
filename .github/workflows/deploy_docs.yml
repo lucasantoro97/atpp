@@ -1,12 +1,12 @@
 name: Deploy Sphinx documentation to Pages
-# from : https://github.com/marketplace/actions/sphinx-to-github-pages
+
 on:
   push:
-    branches: main # branch to trigger deployment
+    branches: main  # branch to trigger deployment
 
 jobs:
   pages:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest  # You can update this to ubuntu-20.04 if needed
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -14,5 +14,22 @@ jobs:
       pages: write
       id-token: write
     steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set Up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'  # Use the Python version you need
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r docs/requirements.txt  # Or wherever your requirements.txt is located
+
+    - name: Clean Sphinx Build Directory
+      run: |
+        make -C docs clean  # Run `make clean` inside the docs folder
+
     - id: deployment
       uses: sphinx-notes/pages@v3
