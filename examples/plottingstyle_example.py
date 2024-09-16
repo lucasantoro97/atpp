@@ -18,7 +18,7 @@ Example:
 The script concludes by creating a simple line plot with labeled axes and a title.
 """
 import matplotlib.pyplot as plt
-from script.plt_style import set_plt_style
+from atpp.plt_style import set_plt_style
 
 
 
