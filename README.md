@@ -54,39 +54,41 @@ For more detailed installation instructions, refer to the [Installation Guide](h
 Once installed, ATPP can be used with the following commands:
 
 ```bash
-
 Usage Guide
 ===========
 
-This section explains how to use ATPP after installation. Below are some typical usage examples and commands.
+This section explains how to use ATPP after installation. Below are some
+typical usage examples and commands.
 
 Basic Usage
 -----------
 
 Once ATPP is installed, you can use the following commands:
 
-.. code-block:: bash
+``` {.bash}
+atpp process <input_data>
+```
 
-   atpp process <input_data>
-
-This will run the default processing pipeline on the provided thermography data.
+This will run the default processing pipeline on the provided
+thermography data.
 
 Advanced Options
 ----------------
 
 You can pass in various flags for more control:
 
-.. code-block:: bash
+``` {.bash}
+atpp process <input_data> --filter noise_reduction --visualize true
+```
 
-   atpp process <input_data> --filter noise_reduction --visualize true
-
-This will apply noise reduction filtering and enable visualization for the thermography data.
+This will apply noise reduction filtering and enable visualization for
+the thermography data.
 
 For a full list of commands and options, use:
 
-.. code-block:: bash
-
-   atpp --help
+``` {.bash}
+atpp --help
+```
 
 ```
 
