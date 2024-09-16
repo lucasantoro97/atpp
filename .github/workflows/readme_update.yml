@@ -1,4 +1,4 @@
-name: Update README
+name: Update README and Documentation
 
 on:
   push:
@@ -19,14 +19,31 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install jinja2
+        pip install jinja2 sphinx
 
     - name: Run the README generation script
       run: |
         python generate_readme.py
 
-    - name: Check if README.md is modified
+    - name: Build Sphinx documentation
       run: |
-        git add README.md
-        git diff --cached --exit-code || git commit -m "Automatically updated README.md"
+        cd docs
+        make html
+
+    - name: Check if README.md or documentation is modified
+      run: |
+        git add README.md docs/_build/html
+        git diff --cached --exit-code || git commit -m "Automatically updated README.md and documentation"
         git push origin main || echo "No changes to push"
+
+    - name: Deploy documentation to GitHub Pages
+      if: success()
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git checkout --orphan gh-pages
+        git reset --hard
+        cp -r docs/_build/html/* .
+        git add .
+        git commit -m "Deploy documentation"
+        git push --force origin gh-pages
