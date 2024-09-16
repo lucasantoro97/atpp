@@ -35,7 +35,9 @@ Before installation, ensure that the following dependencies are met:
 To install ATPP, follow these steps:
 
 ```bash
-{{ installation_instructions }}
+git clone https://github.com/lucasantoro97/atpp.git
+cd atpp
+pip install .
 ```
 
 To install directly from PyPI (coming soon), use:
