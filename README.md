@@ -92,6 +92,8 @@ If you use ATPP in your research, please consider citing it as follows:
     note = {Accessed: September 2024}
 }
 ```
+### Plain Text Citation
+Santoro, L. (2024). ATPP - Active Thermography Test Post-Processing. Available at: https://github.com/lucasantoro97/atpp (Accessed: September 2024).
 
 ## Acknowledgments
 
