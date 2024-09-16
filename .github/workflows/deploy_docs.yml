@@ -14,6 +14,16 @@ jobs:
   docs:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # Ensure this is set for GitHub Pages deployment
+      pages: write      # This grants permission to deploy to GitHub Pages
+      id-token: write   # Needed for GitHub Pages deployment token verification
+
+    environment:
+      name: github-pages  # Define the environment for deployment
+      url: ${{ steps.deployment.outputs.page_url }}  # Optional: output the page URL after deployment
+
+
     steps:
       # Step 1: Checkout the repository
       - name: Checkout Repository
