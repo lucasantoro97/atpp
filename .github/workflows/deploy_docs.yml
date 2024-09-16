@@ -27,10 +27,26 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r docs/requirements.txt  # Or wherever your requirements.txt is located
 
+    - name: Clean AutoDoc Directory
+      run: |
+        rm -rf docs/_autosummary/script/*
+        rm -rf docs/_autosummary/examples/*
+
+    - name: Generate API Documentation
+      run: |
+        sphinx-apidoc -o docs/_autosummary/script ./script
+        sphinx-apidoc -o docs/_autosummary/examples ./examples
+
     - name: Clean Sphinx Build Directory
       run: |
         make -C docs clean  # Run `make clean` inside the docs folder
 
+    - name: Build Sphinx Documentation
+      run: |
+        make -C docs html  # Build the HTML documentation
+
     - id: deployment
       uses: sphinx-notes/pages@v3
-      # sphinx_build_options: --extensions=sphinx.ext.autosummary
+      with:
+        # Provide any Sphinx build options here, such as the build folder
+        sphinx_build_options: --extensions=sphinx.ext.autosummary
