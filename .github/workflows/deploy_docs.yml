@@ -49,4 +49,4 @@ jobs:
       uses: sphinx-notes/pages@v3
       with:
         # Provide any Sphinx build options here, such as the build folder
-        sphinx_build_options: --extensions=sphinx.ext.autosummary
+        # sphinx_build_options: --extensions=sphinx.ext.autosummary
