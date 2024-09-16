@@ -4,25 +4,17 @@ on:
   push:
     branches:
       - main  # Triggers deployment on push to the main branch
-  pull_request:  # Optional - you can also build docs for pull requests
+  pull_request:  # Optional - build docs for pull requests (deployment is skipped)
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 permissions:
-  contents: write  # This allows pushing to the repository (necessary for Pages deployment)
+  contents: write  # Needed to push the artifact to the repository
+  pages: write      # Grants permission to deploy to GitHub Pages
+  id-token: write   # Needed for deployment verification with GitHub Pages
 
 jobs:
   docs:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write  # Ensure this is set for GitHub Pages deployment
-      pages: write      # This grants permission to deploy to GitHub Pages
-      id-token: write   # Needed for GitHub Pages deployment token verification
-
-    # environment:
-    #   name: github-pages  # Define the environment for deployment
-    #   url: ${{ steps.deployment.outputs.page_url }}  # Optional: output the page URL after deployment
-
 
     steps:
       # Step 1: Checkout the repository
@@ -39,10 +31,11 @@ jobs:
           pip install -r docs/requirements.txt
           pip install -r requirements.txt
 
+      # Step 4: Add .nojekyll file (to prevent Jekyll processing)
       - name: Add .nojekyll
         run: touch docs/_build/html/.nojekyll
-        
-      # Step 4: Build Sphinx documentation using Make
+
+      # Step 5: Build Sphinx documentation using Make
       - name: Build Documentation
         run: |
           make -C docs clean  # Clean the previous build
@@ -53,20 +46,20 @@ jobs:
 
           make -C docs html  # Rebuild the documentation
 
-      # Step 5: Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      # Step 6: Upload the built HTML files as a Pages artifact
+      - name: Upload artifact to GitHub Pages
+        uses: actions/upload-pages-artifact@v1
         with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html  # Ensure this is the correct build output directory
-          commit_message: ${{ github.event.head_commit.message }}
-          force_orphan: true  # This will overwrite the existing gh-pages branch
+          path: docs/_build/html  # Ensure this is the correct build output directory
 
-      # Step 6: Show website URL in GitHub Action summary
-      - name: Show Website URL
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}  # Only show on push to main branch
-        run: |
-          REPO_NAME=$(echo "${GITHUB_REPOSITORY}" | awk -F'/' '{print $2}')
-          USER_NAME=$(echo "${GITHUB_REPOSITORY}" | awk -F'/' '{print $1}')
-          echo "Documentation deployed! Visit the site at: https://${USER_NAME}.github.io/${REPO_NAME}/" >> $GITHUB_STEP_SUMMARY
+  # Step 7: Deploy to GitHub Pages when the workflow is triggered by a push
+  deploy:
+    needs: docs
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write  # Permissions required to deploy
+      id-token: write  # Needed for token verification
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1  # Deploy the artifact to GitHub Pages
