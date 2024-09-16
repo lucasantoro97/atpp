@@ -1,6 +1,26 @@
 # example.py
+"""
+This script demonstrates the usage of a custom plotting style and color map in matplotlib.
+
+The script performs the following steps:
+1. Imports the necessary modules.
+2. Applies a custom plotting style using the `set_plt_style` function from `script.plt_style`.
+3. Provides instructions on how to use a custom color map (`custom_cmap`) from `script.plt_style`.
+4. Creates a simple line plot with labeled axes and a title.
+
+Usage:
+- To apply the custom style, ensure that `set_plt_style` is defined in `script.plt_style`.
+- To use the custom color map, uncomment the relevant lines, import `get_custom_cmap` from `script.plt_style`, and use it in the `plt.imshow` function.
+
+Example:
+    # random_data = np.random.rand(10, 10)
+
+The script concludes by creating a simple line plot with labeled axes and a title.
+"""
 import matplotlib.pyplot as plt
 from script.plt_style import set_plt_style
+
+
 
 # Apply the custom style
 set_plt_style()

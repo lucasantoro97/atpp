@@ -9,6 +9,27 @@ from tkinter import filedialog
 
 
 def select_folder_and_process():
+    """
+    Prompts the user to select a folder, processes all '.ats' files in the selected folder,
+    and saves the results in a 'result' directory within the selected folder.
+
+    The function performs the following steps:
+    1. Opens a file dialog for the user to select a folder.
+    2. If no folder is selected, prints a message and exits.
+    3. Creates a 'result' directory within the selected folder.
+    4. Iterates over all files in the selected folder.
+    5. For each file with a '.ats' extension:
+       a. Creates a subdirectory within the 'result' directory named after the file (without extension).
+       b. Initializes a FlirVideo object with the file path.
+       c. Processes the video file and saves the results in the corresponding subdirectory.
+
+    Note:
+        - This function requires the `tkinter` and `os` modules.
+        - The `FlirVideo` class and `process_video` function must be defined elsewhere in the code.
+
+    Returns:
+        None
+    """
     root = tk.Tk()
     root.withdraw()
     folder_selected = filedialog.askdirectory()
