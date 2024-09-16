@@ -2,7 +2,7 @@
 # ATPP - Active Thermography Test Post-Processing
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Documentation Status](https://readthedocs.org/projects/atpp/badge/?version=latest)](https://atpp.readthedocs.io/en/latest/)
+[![Documentation Status](https://img.shields.io/github/actions/workflow/status/lucasantoro97/atpp/docs.yml?branch=main)](https://github.com/lucasantoro97/atpp/actions/workflows/docs.yml)
 
 ## Overview
 
@@ -22,7 +22,7 @@ Active Thermography Test Post-Processing (ATPP) is a powerful tool designed to h
 - Seamless integration with various thermography file formats.
 - Easy-to-use API for custom data handling.
 
-For detailed documentation on features, please visit the [ATPP Documentation](https://atpp.readthedocs.io/en/latest/).
+For detailed documentation on features, please visit the [ATPP Documentation](https://lucasantoro97.github.io/atpp/).
 
 ## Requirements
 
@@ -45,7 +45,7 @@ To install directly from PyPI, use:
 pip install atpp
 ```
 
-For more detailed installation instructions, refer to the [Installation Guide](https://atpp.readthedocs.io/en/latest/installation.html).
+For more detailed installation instructions, refer to the [Installation Guide](https://lucasantoro97.github.io/atpp/).
 
 ## Usage
 
@@ -55,15 +55,15 @@ Once installed, ATPP can be used with the following commands:
 {{ usage_examples }}
 ```
 
-For a detailed guide on how to use ATPP, visit the [Usage Documentation](https://atpp.readthedocs.io/en/latest/usage.html).
+For a detailed guide on how to use ATPP, visit the [Usage Documentation](https://lucasantoro97.github.io/atpp/).
 
 ## Contributing
 
-We welcome contributions from the community. Please read the [Contributing Guidelines](https://atpp.readthedocs.io/en/latest/contributing.html) before submitting any pull requests.
+We welcome contributions from the community. Please read the [Contributing Guidelines](https://lucasantoro97.github.io/atpp/) before submitting any pull requests.
 
 ## Support
 
-If you encounter any issues or need support, feel free to check the [FAQ](https://atpp.readthedocs.io/en/latest/faq.html) or open an issue in our [GitHub Issue Tracker](https://github.com/lucasantoro97/atpp/issues).
+If you encounter any issues or need support, feel free to check the [FAQ](https://lucasantoro97.github.io/atpp/) or open an issue in our [GitHub Issue Tracker](https://github.com/lucasantoro97/atpp/issues).
 
 ## License
 
