@@ -33,3 +33,4 @@ jobs:
 
     - id: deployment
       uses: sphinx-notes/pages@v3
+      # sphinx_build_options: --extensions=sphinx.ext.autosummary
