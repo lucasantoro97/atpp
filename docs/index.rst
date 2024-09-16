@@ -62,9 +62,3 @@ Modules
    _autosummary/script/modules
    _autosummary/examples/modules
 
-
-Additional Resources
---------------------
-
-- **reStructuredText Guide**: See the official guide on using `reStructuredText` for formatting: `reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-- **Sphinx Documentation**: Learn more about Sphinx, the tool used to generate this documentation: `Sphinx <https://www.sphinx-doc.org/en/master/>`_
