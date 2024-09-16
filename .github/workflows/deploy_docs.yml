@@ -31,9 +31,9 @@ jobs:
           pip install -r docs/requirements.txt
           pip install -r requirements.txt
 
-      # Step 4: Add .nojekyll file (to prevent Jekyll processing)
-      - name: Add .nojekyll
-        run: touch docs/_build/html/.nojekyll
+      # # Step 4: Add .nojekyll file (to prevent Jekyll processing)
+      # - name: Add .nojekyll
+      #   run: touch docs/_build/html/.nojekyll
 
       # Step 5: Build Sphinx documentation using Make
       - name: Build Documentation
