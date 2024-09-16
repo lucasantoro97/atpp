@@ -33,16 +33,16 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: github-pages
-          path: ./docs/_build/html
+          path: docs/_build/html  # Ensure this is the correct path
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     permissions:
-      pages: write      # to deploy to GitHub Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
-      contents: write   # This grants permission to push to the repo
+      pages: write
+      id-token: write
+      contents: write
 
     environment:
       name: github-pages
@@ -61,6 +61,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/_build/html
-
+          token: ${{ secrets.GITHUB_TOKEN }}
+          folder: docs/_build/html  # Ensure this matches the folder from the build
