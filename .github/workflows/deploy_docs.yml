@@ -29,6 +29,9 @@ jobs:
           pip install -r docs/requirements.txt
           pip install -r requirements.txt
 
+      - name: Add .nojekyll
+        run: touch docs/_build/html/.nojekyll
+        
       # Step 4: Build Sphinx documentation using Make
       - name: Build Documentation
         run: |
@@ -48,6 +51,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html  # Ensure this is the correct build output directory
           commit_message: ${{ github.event.head_commit.message }}
+          force_orphan: true  # This will overwrite the existing gh-pages branch
 
       # Step 6: Show website URL in GitHub Action summary
       - name: Show Website URL

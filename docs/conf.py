@@ -34,7 +34,7 @@ autosummary_generate = True
 
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','_modules','**/*.rst.txt']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','_modules','_sources']
 
 
 
@@ -43,3 +43,4 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','_modules','**/*.rst.txt'
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
