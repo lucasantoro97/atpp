@@ -10,13 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
+
       - name: Install dependencies
         run: |
           pip install sphinx sphinx_rtd_theme myst_parser
+
+      - name: Remove old build
+        run: |
+          rm -rf docs/_build  # Remove the old build directory if it exists
+
       - name: Sphinx build
         run: |
-          sphinx-build docs/ docs/_build/html  # Correct path to documentation source
+          sphinx-build docs/ docs/_build/html  # Build the new documentation
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
