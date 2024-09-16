@@ -25,6 +25,8 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo apt-get update
+        sudo apt-get install -y pandoc
         pip install jinja2 pypandoc
 
     - name: Run the README generation script
