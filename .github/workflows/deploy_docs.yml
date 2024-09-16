@@ -45,8 +45,16 @@ jobs:
       run: |
         make -C docs html  # Build the HTML documentation
 
-    - id: deployment
-      uses: sphinx-notes/pages@v3
-      # with:
-        # Provide any Sphinx build options here, such as the build folder
-        # sphinx_build_options: --extensions=sphinx.ext.autosummary
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_build/html
+        cname: sphinx-notes.github.io  # Custom domain, if needed
+        commit_message: ${{ github.event.head_commit.message }}
+
+    # - id: deployment
+    #   uses: sphinx-notes/pages@v3
+    #   # with:
+    #     # Provide any Sphinx build options here, such as the build folder
+    #     # sphinx_build_options: --extensions=sphinx.ext.autosummary
