@@ -44,7 +44,7 @@ deploy:
 
     runs-on: ubuntu-latest
         - name: Deploy to GitHub Pages
-            uses: actions/deploy-pages@v4
+            uses: actions/deploy-pages@v3
             with:
                 github_token: ${{ secrets.GITHUB_TOKEN }}
                 publish_dir: ./docs/_build/html
