@@ -50,7 +50,7 @@ jobs:
 
       # Step 6: Upload the built HTML files as a Pages artifact
       - name: Upload artifact to GitHub Pages
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/_build/html  # Ensure this is the correct build output directory
 
