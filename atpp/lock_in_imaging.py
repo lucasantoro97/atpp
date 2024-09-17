@@ -1,24 +1,44 @@
+"""
+This module provides functions for lock-in imaging and related processing techniques.
+
+Functions:
+    - lock_in_amplifier: Perform lock-in amplifier processing on temperature data.
+    - calculate_centroid: Calculate the centroid of the largest connected component in the amplitude data.
+    - mask_data: Create a mask for the largest connected component in the amplitude data.
+    - high_pass_filter: Apply a high-pass filter to the data.
+    - find_se_frames: Find the start and end frames based on a threshold after high-pass filtering.
+
+Example usage:
+    >>> from lock_in_imaging import lock_in_amplifier, calculate_centroid, mask_data, high_pass_filter, find_se_frames
+    >>> temperature = np.random.rand(100, 100, 1000)  # Example 3D array
+    >>> time = np.linspace(0, 1, 1000)  # Example time array
+    >>> frequency = 10.0  # Example frequency
+    >>> amplitude, phase = lock_in_amplifier(temperature, time, frequency)
+"""
+
 import numpy as np
 from scipy.ndimage import label
+from scipy.signal import butter, filtfilt
 
+def lock_in_amplifier(temperature, time, frequency):
+    """
+    Perform lock-in amplifier processing on temperature data.
 
+    :param temperature: 3D array of temperature data with dimensions (height, width, frames).
+    :type temperature: numpy.ndarray
+    :param time: 1D array of time points corresponding to the frames.
+    :type time: numpy.ndarray
+    :param frequency: Frequency of the reference signal for lock-in processing.
+    :type frequency: float
+    :return: Amplitude and phase images.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray)
 
-
-
-def lock_in_amplifier(temperature,time, frequency):
-    def lock_in_amplifier(temperature, time, frequency):
-        """
-        Perform lock-in amplification on a 3D temperature dataset.
-        Parameters:
-        temperature (numpy.ndarray): A 3D array of temperature values with shape (rows, columns, samples).
-        time (numpy.ndarray): A 1D array of time values corresponding to the temperature samples.
-        frequency (float): The reference frequency for the lock-in amplifier.
-        Returns:
-        tuple: A tuple containing:
-            - amplitude (numpy.ndarray): A 2D array of amplitude values with shape (rows, columns).
-            - phase (numpy.ndarray): A 2D array of phase values with shape (rows, columns).
-        """
-
+    Example:
+        >>> temperature = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> time = np.linspace(0, 1, 1000)  # Example time array
+        >>> frequency = 10.0  # Example frequency
+        >>> amplitude, phase = lock_in_amplifier(temperature, time, frequency)
+    """
     rw, c, s = temperature[:, :, :].shape
     t = time[:]
 
@@ -40,24 +60,22 @@ def lock_in_amplifier(temperature,time, frequency):
             
     return amplitude, phase
 
-
-
 def calculate_centroid(amplitude, threshold):
     """
-    The function calculates the centroid coordinates of the largest connected component in an image
-    based on given amplitude and threshold values.
-    
-    :param amplitude: Amplitude is a measure of the magnitude of a signal or wave. In this context, it
-    seems to be a 2D array representing the amplitude values of a signal
-    :param threshold: The `threshold` parameter in the `calculate_centroid` function is used to
-    determine the minimum value of the `amplitude` for which a pixel is considered part of the mask.
-    Pixels with an `amplitude` greater than the `threshold` value will be included in the mask, while
-    those
-    :return: The function `calculate_centroid` returns the x and y coordinates of the centroid of the
-    largest connected component in the input amplitude array based on the provided threshold.
+    Calculate the centroid of the largest connected component in the amplitude data.
+
+    :param amplitude: 2D array of amplitude data.
+    :type amplitude: numpy.ndarray
+    :param threshold: Threshold value to create a binary mask.
+    :type threshold: float
+    :return: Coordinates of the centroid (x, y).
+    :rtype: tuple(float, float)
+
+    Example:
+        >>> amplitude = np.random.rand(100, 100)  # Example amplitude data
+        >>> threshold = 0.5  # Example threshold
+        >>> centroid_x, centroid_y = calculate_centroid(amplitude, threshold)
     """
-
-
     mask = amplitude > threshold
     # Label connected components
     labeled_mask, num_features = label(mask)
@@ -76,14 +94,20 @@ def calculate_centroid(amplitude, threshold):
 
 def mask_data(amplitude, threshold):
     """
-    Generate a mask based on the amplitude and a given threshold.
-    Parameters:
-    amplitude (numpy.ndarray): The array of amplitude values.
-    threshold (float): The threshold value to create the mask.
-    Returns:
-    numpy.ndarray: A boolean array where True indicates the amplitude is greater than the threshold.
+    Create a mask for the largest connected component in the amplitude data.
+
+    :param amplitude: 2D array of amplitude data.
+    :type amplitude: numpy.ndarray
+    :param threshold: Threshold value to create a binary mask.
+    :type threshold: float
+    :return: Binary mask of the largest connected component.
+    :rtype: numpy.ndarray
+
+    Example:
+        >>> amplitude = np.random.rand(100, 100)  # Example amplitude data
+        >>> threshold = 0.5  # Example threshold
+        >>> mask = mask_data(amplitude, threshold)
     """
-    
     mask = amplitude > threshold
     
     # Label connected components
@@ -96,22 +120,26 @@ def mask_data(amplitude, threshold):
     mask = labeled_mask == largest_component
     return mask
 
-import numpy as np
-from scipy.signal import find_peaks
-from scipy.signal import butter, filtfilt
-
 def high_pass_filter(data, cutoff, fs, order=5):
     """
     Apply a high-pass filter to the data.
 
-    Parameters:
-    - data: The input data to be filtered.
-    - cutoff: The cutoff frequency of the filter.
-    - fs: The sampling frequency of the data.
-    - order: The order of the filter.
+    :param data: 1D array of data to be filtered.
+    :type data: numpy.ndarray
+    :param cutoff: Cutoff frequency for the high-pass filter.
+    :type cutoff: float
+    :param fs: Sampling frequency of the data.
+    :type fs: float
+    :param order: Order of the filter, defaults to 5.
+    :type order: int, optional
+    :return: Filtered data.
+    :rtype: numpy.ndarray
 
-    Returns:
-    - The filtered data.
+    Example:
+        >>> data = np.random.rand(1000)  # Example data
+        >>> cutoff = 0.1  # Example cutoff frequency
+        >>> fs = 1000.0  # Example sampling frequency
+        >>> filtered_data = high_pass_filter(data, cutoff, fs, order=5)
     """
     nyquist = 0.5 * fs
     normal_cutoff = cutoff / nyquist
@@ -119,24 +147,30 @@ def high_pass_filter(data, cutoff, fs, order=5):
     filtered_data = filtfilt(b, a, data)
     return filtered_data
 
-# atpp/lock_in_imaging.py
-
-import numpy as np
-
 def find_se_frames(T, threshold, cutoff, fs, order):
     """
-    Find the start and end frames of a signal based on a threshold and cutoff frequency.
+    Find the start and end frames based on a threshold after high-pass filtering.
 
-    Parameters:
-    - T: Temperature data (3D array: height x width x time)
-    - threshold: Threshold value to determine significant frames
-    - cutoff: Cutoff frequency for filtering
-    - fs: Sampling frequency
-    - order: Order of the filter
+    :param T: 3D array of temperature data with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param threshold: Threshold value to determine start and end frames.
+    :type threshold: float
+    :param cutoff: Cutoff frequency for the high-pass filter.
+    :type cutoff: float
+    :param fs: Sampling frequency of the data.
+    :type fs: float
+    :param order: Order of the high-pass filter.
+    :type order: int
+    :return: Start and end frames.
+    :rtype: tuple(int, int)
 
-    Returns:
-    - start_frame: The starting frame index
-    - end_frame: The ending frame index
+    Example:
+        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> threshold = 0.5  # Example threshold
+        >>> cutoff = 0.1  # Example cutoff frequency
+        >>> fs = 1000.0  # Example sampling frequency
+        >>> order = 5  # Example filter order
+        >>> start_frame, end_frame = find_se_frames(T, threshold, cutoff, fs, order)
     """
     # Flatten the spatial dimensions and take the maximum temperature signal
     T_max = np.max(np.max(T, axis=0), axis=0)
