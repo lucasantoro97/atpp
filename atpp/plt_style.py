@@ -14,7 +14,7 @@ Example usage:
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
-def set_plt_style():
+def set_plt_style(width=3,ratio=0.8):
     """
     Set custom matplotlib style parameters for consistent plotting aesthetics.
 
@@ -22,12 +22,17 @@ def set_plt_style():
     including figure size, font family, font size, line width, tick size, legend properties,
     and more.
 
+    :param width: The width of the figure in inches, defaults to 3
+    :type width: int, optional
+    :param ratio: The aspect ratio of the figure (height/width), defaults to 0.8
+    :type ratio: float, optional
+
     Example:
         >>> set_plt_style()
     """
     # Set figure size
-    width = 3
-    height = width * 0.8
+    
+    height = width * ratio
     plt.rcParams['figure.figsize'] = (width, height)
     
     # Set matplotlib global rcParams
