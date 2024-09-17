@@ -30,7 +30,7 @@ release = '0.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = [ 'sphinx.ext.napoleon', 'sphinx.ext.viewcode', 'sphinx.ext.autodoc', 'sphinx.ext.autosummary','sphinxcontrib.napoleon']
+extensions = [ 'sphinx.ext.napoleon', 'sphinx.ext.viewcode', 'sphinx.ext.autodoc', 'sphinx.ext.autosummary']
 # Add this to conf.py
 autodoc_default_options = {
     'members': True,
@@ -41,18 +41,7 @@ autodoc_default_options = {
     'show-inheritance': True,
     'autosummary': True  # Generate summary tables with links to each member's documentation
 }
-# Configure Napoleon settings
-napoleon_google_docstring = True
-napoleon_numpy_docstring = False
-napoleon_include_init_with_doc = False
-napoleon_include_private_with_doc = False
-napoleon_include_special_with_doc = True
-napoleon_use_admonition_for_examples = False
-napoleon_use_admonition_for_notes = False
-napoleon_use_admonition_for_references = False
-napoleon_use_ivar = False
-napoleon_use_param = True
-napoleon_use_rtype = True
+
 
 autosummary_generate = True  # This automatically generates stub .rst files for every function and class
 
