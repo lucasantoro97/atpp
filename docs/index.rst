@@ -59,6 +59,6 @@ Modules
    :maxdepth: 2
    :caption: Modules:
 
-   _autosummary/modules
+   _autosummary/atpp
    _autosummary/examples/modules
 
