@@ -11,7 +11,7 @@ Quick Links
 - **GitHub Repository**: https://github.com/lucasantoro97/atpp
 - **PyPI Package**: Coming soon (if relevant)
 - **Issue Tracker**: https://github.com/lucasantoro97/atpp/issues
-- **Author Website!**: https://lucasantoro97.github.io/cv/
+- **Author Website**: https://lucasantoro97.github.io/cv/
 
 Overview
 --------
