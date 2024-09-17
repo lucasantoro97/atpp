@@ -59,6 +59,6 @@ Modules
    :maxdepth: 2
    :caption: Modules:
 
-   _autosummary/script/modules
+   _autosummary/modules
    _autosummary/examples/modules
 

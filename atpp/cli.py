@@ -1,5 +1,5 @@
 import argparse
-from script.process import process
+from atpp.process import process
 
 def main():
     """

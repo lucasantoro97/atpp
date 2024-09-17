@@ -4,11 +4,20 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 
+# -- Path setup --------------------------------------------------------------
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../script'))
+
+# Add the parent directory (root) to sys.path
+sys.path.insert(0, os.path.abspath('..'))
+
+# Optionally, add specific paths for scripts and examples, if needed:
+# sys.path.insert(0, os.path.abspath('./atpp'))
 sys.path.insert(0, os.path.abspath('../examples'))
-# os.path.abspath('../')
+
+# Print the Python path for debugging (optional)
+print("Python path:", sys.path)
+
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -22,15 +31,19 @@ release = '0.1'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [ 'sphinx.ext.napoleon', 'sphinx.ext.viewcode', 'sphinx.ext.autodoc', 'sphinx.ext.autosummary']
+# Add this to conf.py
 autodoc_default_options = {
-    'members': True,         # Include all class and module members
-    'undoc-members': True,   # Include members without docstrings
-    'private-members': False, # Include private members (e.g., _foo) if set to True
-    'special-members': '__init__', # Include special methods like __init__
-    'inherited-members': True,  # Include members inherited from parent classes
-    'show-inheritance': True   # Show class inheritance diagram
+    'members': True,
+    'undoc-members': True,
+    'private-members': False,
+    'special-members': '__init__',
+    'inherited-members': True,
+    'show-inheritance': True,
+    'autosummary': True  # Generate summary tables with links to each member's documentation
 }
-autosummary_generate = True
+
+autosummary_generate = True  # This automatically generates stub .rst files for every function and class
+
 
 
 templates_path = ['_templates']

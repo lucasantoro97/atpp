@@ -1,5 +1,5 @@
 from .lock_in_imaging import lock_in_amplifier
-from .fnv import FlirVideo
+from .fnv_class import FlirVideo
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
