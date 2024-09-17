@@ -29,9 +29,20 @@ jobs:
         sudo apt-get install -y pandoc
         pip install jinja2 pypandoc
 
+    - name: Get the latest release tag
+      id: get_latest_release
+      run: echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --max-count=1))"
+
     - name: Run the README generation script
       run: |
         python generate_readme.py
+        
+    - name: Update README
+      id: update_readme
+      run: |
+        latest_release=${{ steps.get_latest_release.outputs.tag }}
+        sed -i "s/^\\- \\*\\*Version\\*\\*: .*/- **Version**: $latest_release/" README.md
+
 
     - name: Check if README.md is modified
       run: |
