@@ -62,7 +62,7 @@ jobs:
   # Step 7: Deploy to GitHub Pages when the workflow is triggered by a push
   deploy:
     needs: docs
-    runs-on: ubuntu-latest
+    
     permissions:
       pages: write  # Permissions required to deploy
       id-token: write  # Needed for token verification
@@ -72,9 +72,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
+    runs-on: ubuntu-latest
     steps:
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/_build/html
+      uses: actions/deploy-pages@v4
+
+
