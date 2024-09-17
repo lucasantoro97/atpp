@@ -58,3 +58,5 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','_modules','_sources']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
+#need to mock FLIR dependencies
+autodoc_mock_imports = ["fnv"]
