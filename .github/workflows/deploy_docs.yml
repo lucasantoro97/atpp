@@ -31,11 +31,8 @@ jobs:
           pip install -r docs/requirements.txt
           pip install -r requirements.txt
 
-      # Step 4: Add .nojekyll file (to prevent Jekyll processing)
-      - name: Add .nojekyll
-        run: touch docs/_build/html/.nojekyll
 
-      # Step 5: Build Sphinx documentation using Make
+      # Step 6: Build Sphinx documentation using Make
       - name: Build Documentation
         run: |
           make -C docs clean  # Clean the previous build
@@ -45,6 +42,11 @@ jobs:
           sphinx-apidoc -o docs/_autosummary/examples ./examples
 
           make -C docs html  # Rebuild the documentation
+
+      # Step 5: Add .nojekyll file (to prevent Jekyll processing) (!!!must be after documentation is processed!!!)
+      - name: Add .nojekyll
+        run: touch docs/_build/html/.nojekyll
+
 
       # Step 6: Upload the built HTML files as a Pages artifact
       - name: Upload artifact to GitHub Pages
