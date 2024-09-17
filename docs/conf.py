@@ -59,4 +59,4 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 #need to mock FLIR dependencies
-autodoc_mock_imports = ["fnv"]
+autodoc_mock_imports = ["fnv","tkinter"]
