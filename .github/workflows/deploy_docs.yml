@@ -62,10 +62,10 @@ jobs:
       pages: write  # Permissions required to deploy
       id-token: write  # Needed for token verification
 
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    # # Deploy to the github-pages environment
+    # environment:
+    #   name: github-pages
+    #   url: ${{ steps.deployment.outputs.page_url }}
 
       steps:
       - name: Deploy to GitHub Pages
