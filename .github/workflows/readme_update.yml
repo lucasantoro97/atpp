@@ -10,16 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set Git user
       run: |
         git config --global user.email "lcsantoro97@gmail.com"
         git config --global user.name "Luca Santoro"
 
-
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.x'
 
@@ -31,18 +30,16 @@ jobs:
 
     - name: Get the latest release tag
       id: get_latest_release
-      run: echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --max-count=1))"
+      run: echo "tag=$(git describe --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_ENV
 
     - name: Run the README generation script
       run: |
         python generate_readme.py
-        
-    - name: Update README
-      id: update_readme
-      run: |
-        latest_release=${{ steps.get_latest_release.outputs.tag }}
-        sed -i "s/^\\- \\*\\*Version\\*\\*: .*/- **Version**: $latest_release/" README.md
 
+    - name: Update README
+      run: |
+        latest_release=$tag
+        sed -i "s/^\\- \\*\\*Version\\*\\*: .*/- **Version**: $latest_release/" README.md
 
     - name: Check if README.md is modified
       run: |
