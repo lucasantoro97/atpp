@@ -3,15 +3,20 @@ from scipy.signal import hilbert
 
 def phase_coherence_imaging(T, fs, f_stim):
     """
-    The function `phase_coherence_imaging` calculates the amplitude, phase, and phase coherence of a
-    given 3D signal array `T` with respect to a specified stimulus frequency `f_stim` and sampling
-    frequency `fs`.
-    
-    :param T: 3D numpy array (height, width, frames) containing the image data over time.
-    :param fs: Sampling frequency of the signal.
-    :param f_stim: Stimulus frequency for reference sine and cosine generation.
-    :return: amplitude, phase, and phase_coherence arrays.
+    Compute the phase coherence imaging of a given 3D time series data.
+
+    Parameters:
+    T (numpy.ndarray): 3D array of shape (height, width, frames) representing the time series data.
+    fs (float): Sampling frequency of the time series data.
+    f_stim (float): Stimulation frequency.
+
+    Returns:
+    tuple: A tuple containing:
+        - amplitude (numpy.ndarray): 2D array of shape (height, width) representing the amplitude of the signal.
+        - phase (numpy.ndarray): 2D array of shape (height, width) representing the phase of the signal.
+        - phase_coherence (numpy.ndarray): 2D array of shape (height, width) representing the phase coherence map.
     """
+
     # Get dimensions
     height, width, frames = T.shape
 
@@ -62,19 +67,19 @@ def phase_coherence_imaging(T, fs, f_stim):
 
 def synchronous_demodulation(T, fs, f_stim):
     """
-    The function `synchronous_demodulation` performs synchronous demodulation on a 3D array of
-    time-domain signals to extract amplitude and phase information using reference sinusoidal signals.
-    
-    :param T: It seems like the description of the parameter `T` is missing. Could you please provide
-    more information about what `T` represents in the context of the `synchronous_demodulation`
-    function?
-    :param fs: The parameter `fs` represents the sampling frequency of the signal. It is the number of
-    samples obtained in one second
-    :param f_stim: f_stim is the frequency of the stimulus signal used for synchronous demodulation
-    :return: The function `synchronous_demodulation` returns two arrays: `amplitude` and `phase`. The
-    `amplitude` array contains the calculated amplitude values for each pixel in the input data, while
-    the `phase` array contains the calculated phase values for each pixel.
+    Perform synchronous demodulation on a 3D array of time-series data.
+
+    Parameters:
+    T (numpy.ndarray): A 3D array of shape (height, width, frames) representing the time-series data.
+    fs (float): The sampling frequency of the time-series data.
+    f_stim (float): The frequency of the stimulus signal.
+
+    Returns:
+    tuple: A tuple containing two 2D arrays:
+        - amplitude (numpy.ndarray): The amplitude of the demodulated signal, of shape (height, width).
+        - phase (numpy.ndarray): The phase of the demodulated signal, of shape (height, width).
     """
+
     height, width, frames = T.shape
     t = np.arange(frames) / fs
 
@@ -109,15 +114,12 @@ def hilbert_transform_analysis(T):
     input 3D array.
 
     Parameters:
-    T (numpy.ndarray): A 3D numpy array with shape (height, width, frames) 
-                       representing the input data.
+    T (numpy.ndarray): A 3D numpy array with shape (height, width, frames) representing the input data.
 
     Returns:
     tuple: A tuple containing two 3D numpy arrays:
-        - amplitude (numpy.ndarray): The amplitude of the analytic signal 
-                                     with the same shape as T.
-        - phase (numpy.ndarray): The phase of the analytic signal with the 
-                                 same shape as T.
+        - amplitude (numpy.ndarray): The amplitude of the analytic signal with the same shape as T.
+        - phase (numpy.ndarray): The phase of the analytic signal with the same shape as T.
     """
 
     height, width, frames = T.shape
@@ -139,18 +141,14 @@ def hilbert_transform_analysis(T):
 
 def thermal_signal_reconstruction(T, order=5):
     """
-    The function `thermal_signal_reconstruction` reconstructs thermal signals using polynomial fitting
-    on the logarithm of the input signal.
-    
-    :param T: It seems like you were about to provide some information about the parameter `T` in the
-    `thermal_signal_reconstruction` function. Could you please provide more details or specify the shape
-    and type of the `T` parameter so that I can assist you further with the function?
-    :param order: The `order` parameter in the `thermal_signal_reconstruction` function represents the
-    degree of the polynomial used for fitting the signal data. A higher order polynomial can capture
-    more complex patterns in the data but may also be more prone to overfitting. You can adjust the
-    `order` parameter to control, defaults to 5 (optional)
-    :return: The function `thermal_signal_reconstruction` returns the reconstructed thermal signal array
-    `T_reconstructed`.
+    Reconstructs the thermal signal using polynomial fitting in the logarithmic domain.
+
+    Parameters:
+    T (numpy.ndarray): A 3D array of shape (height, width, frames) representing the thermal signal over time.
+    order (int, optional): The order of the polynomial to fit. Default is 5.
+
+    Returns:
+    numpy.ndarray: A 3D array of the same shape as T containing the reconstructed thermal signal.
     """
     height, width, frames = T.shape
     log_time = np.log(np.arange(1, frames + 1))
@@ -173,24 +171,20 @@ def thermal_signal_reconstruction(T, order=5):
 
 def modulated_thermography(T, fs, f_stim, harmonics=[2, 3]):
     """
-    The function `modulated_thermography` performs demodulation on a thermal image sequence using
-    modulated thermography technique to extract amplitude and phase information for specified harmonics.
-    
-    :param T: It seems like you were about to provide some information about the parameter T in the
-    `modulated_thermography` function. Could you please specify what T represents in this context?
-    :param fs: The parameter `fs` in the `modulated_thermography` function represents the sampling
-    frequency of the thermal data `T`. It is used to calculate the time vector `t` based on the number
-    of frames in the data. If you have any more questions or need further clarification, feel
-    :param f_stim: The `f_stim` parameter in the `modulated_thermography` function represents the
-    frequency of the stimulus signal used in modulated thermography. This frequency is used to generate
-    reference signals for demodulation at different harmonics
-    :param harmonics: The `harmonics` parameter in the `modulated_thermography` function is a list that
-    specifies the harmonics for which you want to analyze the modulated thermography data. By default,
-    the function calculates the amplitude and phase for the 2nd and 3rd harmonics
-    :return: The function `modulated_thermography` returns two dictionaries: `amplitude` and `phase`.
-    The `amplitude` dictionary contains the calculated amplitudes for each harmonic specified in the
-    `harmonics` list, while the `phase` dictionary contains the calculated phases for each harmonic.
+    Perform modulated thermography analysis on a 3D thermal data array.
+
+    Parameters:
+    T (numpy.ndarray): 3D array of thermal data with shape (height, width, frames).
+    fs (float): Sampling frequency of the thermal data.
+    f_stim (float): Stimulation frequency.
+    harmonics (list of int, optional): List of harmonics to analyze. Default is [2, 3].
+
+    Returns:
+    tuple: Two dictionaries containing amplitude and phase for each harmonic.
+        - amplitude (dict): Amplitude of the thermal response for each harmonic.
+        - phase (dict): Phase of the thermal response for each harmonic.
     """
+
     height, width, frames = T.shape
     t = np.arange(frames) / fs
 
