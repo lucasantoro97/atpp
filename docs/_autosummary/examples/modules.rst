@@ -7,3 +7,4 @@ examples
    advanced_imaging_example
    example
    plottingstyle_example
+   test_example
