@@ -39,8 +39,8 @@ jobs:
           make -C docs clean  # Clean the previous build
           rm -rf docs/_autosummary  # Remove the autosummary folder
           
-          sphinx-apidoc -o docs/_autosummary $(pwd)/atpp
-          sphinx-apidoc -o docs/_autosummary/examples $(pwd)/examples
+          sphinx-apidoc -f -o docs/_autosummary $(pwd)/atpp
+          sphinx-apidoc -f -o docs/_autosummary/examples $(pwd)/examples
 
           make -C docs html  # Rebuild the documentation
 

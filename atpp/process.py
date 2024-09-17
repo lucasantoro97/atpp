@@ -52,7 +52,20 @@ def apply_noise_reduction(data):
     return reduced_noise_data
 
 def visualize_data(data):
-    """Visualizes the thermography data."""
+    """
+    Visualize thermography data using a heatmap.
+    Parameters:
+    data (array-like): The input data to visualize. It can be a 2D or 3D array. 
+                       If it's a 3D array, only the first frame will be used.
+    Returns:
+    None: This function displays a plot and does not return any value.
+    Notes:
+    - The data is converted to a numpy array if it is not already one.
+    - The data is displayed using a 'hot' colormap.
+    - A colorbar is added to the plot to indicate the scale.
+    - The plot includes titles and labels for the x and y axes.
+    """
+    
     # Convert data to numpy array if it's not already
     if not isinstance(data, np.ndarray):
         data = np.array(data)

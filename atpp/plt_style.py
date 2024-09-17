@@ -4,8 +4,30 @@ from matplotlib.colors import LinearSegmentedColormap
 
 def set_plt_style():
     """
-    Apply custom matplotlib and seaborn styles globally.
+    Set the global style parameters for matplotlib plots.
+    This function configures various matplotlib rcParams to standardize the appearance of plots.
+    The settings include figure size, font properties, line widths, tick sizes, legend properties,
+    subplot adjustments, and axis formatting.
+    The specific settings applied are:
+    - Figure size: width and height
+    - Font family: Times New Roman
+    - Font size: 11
+    - Line width for axes and lines
+    - Marker size for lines
+    - Major and minor tick sizes and widths for both x and y axes
+    - Legend font size, frame visibility, and frame transparency
+    - Subplot margins (left, right, bottom, top)
+    - Axis formatter offset usage and threshold
+    - Grid visibility
+    - Minor tick visibility for both x and y axes
+    - Tick direction for both x and y axes
+    - Axis face color
+    - Axis label padding
+    - Legend face color
+    Usage:
+        Call this function before creating any plots to ensure the style settings are applied.
     """
+
     # Set figure size
     width = 3
     height = width * 0.8
