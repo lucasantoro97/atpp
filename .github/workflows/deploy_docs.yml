@@ -62,7 +62,14 @@ jobs:
       pages: write  # Permissions required to deploy
       id-token: write  # Needed for token verification
 
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1  # Deploy the artifact to GitHub Pages
-        force_orphan: true  # Force push to the gh-pages branch
+        id: deployment
+        uses: actions/deploy-pages@v4 
