@@ -10,7 +10,7 @@
 Active Thermography Test Post-Processing (ATPP) is a powerful tool designed to help users analyze and process thermography data. This application offers a range of post-processing techniques, including data filtering, noise reduction, and advanced visualization options for enhanced analysis.
 
 - **Author**: [Luca Santoro](https://lucasantoro97.github.io/cv/)
-- **Version**: 
+- **Version**: v0.1.0
 - **License**: MIT
 
 ## Features
