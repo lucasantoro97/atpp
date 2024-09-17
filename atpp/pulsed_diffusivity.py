@@ -1,85 +1,85 @@
+"""
+This module provides functions for analyzing pulsed diffusivity data, including Gaussian fitting and centroid calculation.
+
+Functions:
+    - gaussian: Define a Gaussian function for curve fitting.
+    - calculate_centroid: Calculate the centroid of the peak frame and create a binary mask.
+
+Example usage:
+    >>> from pulsed_diffusivity import gaussian, calculate_centroid
+    >>> x = np.linspace(-10, 10, 100)
+    >>> A, x0, sigma = 1, 0, 1
+    >>> y = gaussian(x, A, x0, sigma)
+    >>> peak_frame = np.random.rand(100, 100)
+    >>> ambient_temp = np.random.rand(100, 100)
+    >>> radius = 5
+    >>> resolution = 0.1
+    >>> centroid, mask_bin_expanded = calculate_centroid(peak_frame, ambient_temp, radius, resolution)
+"""
+
+import numpy as np
+from scipy.optimize import curve_fit
+from scipy import ndimage
+import matplotlib.pyplot as plt
+from sklearn.linear_model import RANSACRegressor, LinearRegression
+
+n_frame_tamb = 100  # Constant for the number of ambient frames
+
+def gaussian(x, A, x0, sigma):
     """
-    This module provides functions for analyzing pulsed diffusivity data, including Gaussian fitting and centroid calculation.
-    
-    Functions:
-        - gaussian: Define a Gaussian function for curve fitting.
-        - calculate_centroid: Calculate the centroid of the peak frame and create a binary mask.
-    
-    Example usage:
-        >>> from pulsed_diffusivity import gaussian, calculate_centroid
+    Define a Gaussian function for curve fitting.
+
+    :param x: The input data points.
+    :type x: numpy.ndarray
+    :param A: The amplitude of the Gaussian.
+    :type A: float
+    :param x0: The mean (center) of the Gaussian.
+    :type x0: float
+    :param sigma: The standard deviation (width) of the Gaussian.
+    :type sigma: float
+    :return: The Gaussian function evaluated at x.
+    :rtype: numpy.ndarray
+
+    Example:
         >>> x = np.linspace(-10, 10, 100)
         >>> A, x0, sigma = 1, 0, 1
         >>> y = gaussian(x, A, x0, sigma)
+    """
+    return A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
+
+
+def calculate_centroid(peak_frame, ambient_temp, radius, resolution):
+    """
+    Calculate the centroid of the peak frame and create a binary mask.
+
+    :param peak_frame: The frame with the peak temperature values.
+    :type peak_frame: numpy.ndarray
+    :param ambient_temp: The ambient temperature frame.
+    :type ambient_temp: numpy.ndarray
+    :param radius: The radius around the centroid to create the binary mask.
+    :type radius: float
+    :param resolution: The spatial resolution of the data.
+    :type resolution: float
+    :return: The coordinates of the centroid and the expanded binary mask.
+    :rtype: tuple(tuple(float, float), numpy.ndarray)
+
+    Example:
         >>> peak_frame = np.random.rand(100, 100)
         >>> ambient_temp = np.random.rand(100, 100)
         >>> radius = 5
         >>> resolution = 0.1
         >>> centroid, mask_bin_expanded = calculate_centroid(peak_frame, ambient_temp, radius, resolution)
     """
-    
-    import numpy as np
-    from scipy.optimize import curve_fit
-    from scipy import ndimage
-    import matplotlib.pyplot as plt
-    from sklearn.linear_model import RANSACRegressor, LinearRegression
-    
-    n_frame_tamb = 100  # Constant for the number of ambient frames
-    
-    def gaussian(x, A, x0, sigma):
-        """
-        Define a Gaussian function for curve fitting.
-    
-        :param x: The input data points.
-        :type x: numpy.ndarray
-        :param A: The amplitude of the Gaussian.
-        :type A: float
-        :param x0: The mean (center) of the Gaussian.
-        :type x0: float
-        :param sigma: The standard deviation (width) of the Gaussian.
-        :type sigma: float
-        :return: The Gaussian function evaluated at x.
-        :rtype: numpy.ndarray
-    
-        Example:
-            >>> x = np.linspace(-10, 10, 100)
-            >>> A, x0, sigma = 1, 0, 1
-            >>> y = gaussian(x, A, x0, sigma)
-        """
-        return A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
-    
-    
-    def calculate_centroid(peak_frame, ambient_temp, radius, resolution):
-        """
-        Calculate the centroid of the peak frame and create a binary mask.
-    
-        :param peak_frame: The frame with the peak temperature values.
-        :type peak_frame: numpy.ndarray
-        :param ambient_temp: The ambient temperature frame.
-        :type ambient_temp: numpy.ndarray
-        :param radius: The radius around the centroid to create the binary mask.
-        :type radius: float
-        :param resolution: The spatial resolution of the data.
-        :type resolution: float
-        :return: The coordinates of the centroid and the expanded binary mask.
-        :rtype: tuple(tuple(float, float), numpy.ndarray)
-    
-        Example:
-            >>> peak_frame = np.random.rand(100, 100)
-            >>> ambient_temp = np.random.rand(100, 100)
-            >>> radius = 5
-            >>> resolution = 0.1
-            >>> centroid, mask_bin_expanded = calculate_centroid(peak_frame, ambient_temp, radius, resolution)
-        """
-        mask_centroid = (peak_frame - ambient_temp) > 0.3 * (np.max(peak_frame) - ambient_temp)
-        centroid = ndimage.center_of_mass(mask_centroid)
-    
-        r = int(radius / resolution)
-        x, y = np.meshgrid(np.arange(peak_frame.shape[1]), np.arange(peak_frame.shape[0]))
-        dist = np.sqrt((x - centroid[1]) ** 2 + (y - centroid[0]) ** 2)
-        mask_bin = dist <= r
-        mask_bin_expanded = np.expand_dims(mask_bin, axis=-1)
-    
-        return centroid, mask_bin_expanded
+    mask_centroid = (peak_frame - ambient_temp) > 0.3 * (np.max(peak_frame) - ambient_temp)
+    centroid = ndimage.center_of_mass(mask_centroid)
+
+    r = int(radius / resolution)
+    x, y = np.meshgrid(np.arange(peak_frame.shape[1]), np.arange(peak_frame.shape[0]))
+    dist = np.sqrt((x - centroid[1]) ** 2 + (y - centroid[0]) ** 2)
+    mask_bin = dist <= r
+    mask_bin_expanded = np.expand_dims(mask_bin, axis=-1)
+
+    return centroid, mask_bin_expanded
 
 def apply_mask_and_get_ambient_temp(T, mask_bin_expanded):
     """

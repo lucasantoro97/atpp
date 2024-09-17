@@ -21,9 +21,9 @@ def select_folder_and_process():
     3. Creates a 'result' directory within the selected folder.
     4. Iterates over all files in the selected folder.
     5. For each file with a '.ats' extension:
-       a. Creates a subdirectory within the 'result' directory named after the file (without extension).
-       b. Initializes a FlirVideo object with the file path.
-       c. Processes the video file and saves the results in the corresponding subdirectory.
+    a. Creates a subdirectory within the 'result' directory named after the file (without extension).
+    b. Initializes a FlirVideo object with the file path.
+    c. Processes the video file and saves the results in the corresponding subdirectory.
 
     Note:
         - This function requires the `tkinter` and `os` modules.
