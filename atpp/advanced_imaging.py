@@ -1,22 +1,43 @@
+"""
+This module provides advanced imaging techniques for thermography data analysis.
+
+Functions:
+    - phase_coherence_imaging: Perform phase coherence imaging on a 3D array of time-domain signals.
+    - synchronous_demodulation: Perform synchronous demodulation on a 3D array of time-domain signals.
+    - hilbert_transform_analysis: Perform Hilbert transform analysis on a 3D array of time-domain signals.
+    - thermal_signal_reconstruction: Reconstruct thermal signals using polynomial fitting.
+    - modulated_thermography: Perform modulated thermography analysis on a 3D array of time-domain signals.
+
+Example usage:
+    >>> from advanced_imaging import phase_coherence_imaging
+    >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+    >>> fs = 1000.0  # Example sampling frequency
+    >>> f_stim = 10.0  # Example stimulus frequency
+    >>> result = phase_coherence_imaging(T, fs, f_stim)
+"""
+
 import numpy as np
 from scipy.signal import hilbert
 
 def phase_coherence_imaging(T, fs, f_stim):
     """
-    Compute the phase coherence imaging of a given 3D time series data.
+    Perform phase coherence imaging on a 3D array of time-domain signals to extract phase coherence information.
 
-    Parameters:
-    T (numpy.ndarray): 3D array of shape (height, width, frames) representing the time series data.
-    fs (float): Sampling frequency of the time series data.
-    f_stim (float): Stimulation frequency.
+    :param T: A 3D numpy array of time-domain signals with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param fs: The sampling frequency of the signal. It is the number of samples obtained in one second.
+    :type fs: float
+    :param f_stim: The frequency of the stimulus signal used for phase coherence imaging.
+    :type f_stim: float
+    :return: A tuple containing amplitude, phase, and phase coherence images.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray, numpy.ndarray)
 
-    Returns:
-    tuple: A tuple containing:
-        - amplitude (numpy.ndarray): 2D array of shape (height, width) representing the amplitude of the signal.
-        - phase (numpy.ndarray): 2D array of shape (height, width) representing the phase of the signal.
-        - phase_coherence (numpy.ndarray): 2D array of shape (height, width) representing the phase coherence map.
+    Example:
+        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> fs = 1000.0  # Example sampling frequency
+        >>> f_stim = 10.0  # Example stimulus frequency
+        >>> amplitude, phase, phase_coherence = phase_coherence_imaging(T, fs, f_stim)
     """
-
     # Get dimensions
     height, width, frames = T.shape
 
@@ -67,19 +88,23 @@ def phase_coherence_imaging(T, fs, f_stim):
 
 def synchronous_demodulation(T, fs, f_stim):
     """
-    Perform synchronous demodulation on a 3D array of time-series data.
+    Perform synchronous demodulation on a 3D array of time-domain signals to extract amplitude and phase information.
 
-    Parameters:
-    T (numpy.ndarray): A 3D array of shape (height, width, frames) representing the time-series data.
-    fs (float): The sampling frequency of the time-series data.
-    f_stim (float): The frequency of the stimulus signal.
+    :param T: A 3D numpy array of time-domain signals with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param fs: The sampling frequency of the signal. It is the number of samples obtained in one second.
+    :type fs: float
+    :param f_stim: The frequency of the stimulus signal used for synchronous demodulation.
+    :type f_stim: float
+    :return: A tuple containing amplitude and phase images.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray)
 
-    Returns:
-    tuple: A tuple containing two 2D arrays:
-        - amplitude (numpy.ndarray): The amplitude of the demodulated signal, of shape (height, width).
-        - phase (numpy.ndarray): The phase of the demodulated signal, of shape (height, width).
+    Example:
+        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> fs = 1000.0  # Example sampling frequency
+        >>> f_stim = 10.0  # Example stimulus frequency
+        >>> amplitude, phase = synchronous_demodulation(T, fs, f_stim)
     """
-
     height, width, frames = T.shape
     t = np.arange(frames) / fs
 
@@ -107,21 +132,17 @@ def synchronous_demodulation(T, fs, f_stim):
 
 def hilbert_transform_analysis(T):
     """
-    Perform Hilbert Transform analysis on a 3D array.
+    Perform Hilbert transform analysis on a 3D array of time-domain signals to extract amplitude and phase information.
 
-    This function computes the amplitude and phase of the analytic signal
-    obtained from the Hilbert Transform of each pixel's time series in the 
-    input 3D array.
+    :param T: A 3D numpy array of time-domain signals with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :return: A tuple containing amplitude and phase images.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray)
 
-    Parameters:
-    T (numpy.ndarray): A 3D numpy array with shape (height, width, frames) representing the input data.
-
-    Returns:
-    tuple: A tuple containing two 3D numpy arrays:
-        - amplitude (numpy.ndarray): The amplitude of the analytic signal with the same shape as T.
-        - phase (numpy.ndarray): The phase of the analytic signal with the same shape as T.
+    Example:
+        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> amplitude, phase = hilbert_transform_analysis(T)
     """
-
     height, width, frames = T.shape
 
     # Initialize arrays
@@ -141,14 +162,18 @@ def hilbert_transform_analysis(T):
 
 def thermal_signal_reconstruction(T, order=5):
     """
-    Reconstructs the thermal signal using polynomial fitting in the logarithmic domain.
+    Reconstruct thermal signals using polynomial fitting.
 
-    Parameters:
-    T (numpy.ndarray): A 3D array of shape (height, width, frames) representing the thermal signal over time.
-    order (int, optional): The order of the polynomial to fit. Default is 5.
+    :param T: A 3D numpy array of time-domain signals with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param order: The order of the polynomial for fitting, defaults to 5.
+    :type order: int, optional
+    :return: A 3D numpy array of reconstructed thermal signals.
+    :rtype: numpy.ndarray
 
-    Returns:
-    numpy.ndarray: A 3D array of the same shape as T containing the reconstructed thermal signal.
+    Example:
+        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> T_reconstructed = thermal_signal_reconstruction(T, order=5)
     """
     height, width, frames = T.shape
     log_time = np.log(np.arange(1, frames + 1))
@@ -171,20 +196,26 @@ def thermal_signal_reconstruction(T, order=5):
 
 def modulated_thermography(T, fs, f_stim, harmonics=[2, 3]):
     """
-    Perform modulated thermography analysis on a 3D thermal data array.
+    Perform modulated thermography analysis on a 3D array of time-domain signals.
 
-    Parameters:
-    T (numpy.ndarray): 3D array of thermal data with shape (height, width, frames).
-    fs (float): Sampling frequency of the thermal data.
-    f_stim (float): Stimulation frequency.
-    harmonics (list of int, optional): List of harmonics to analyze. Default is [2, 3].
+    :param T: A 3D numpy array of time-domain signals with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param fs: The sampling frequency of the signal. It is the number of samples obtained in one second.
+    :type fs: float
+    :param f_stim: The frequency of the stimulus signal used for modulated thermography.
+    :type f_stim: float
+    :param harmonics: A list of harmonics to analyze, defaults to [2, 3].
+    :type harmonics: list, optional
+    :return: A tuple containing dictionaries of amplitude and phase images for each harmonic.
+    :rtype: tuple(dict, dict)
 
-    Returns:
-    tuple: Two dictionaries containing amplitude and phase for each harmonic.
-        - amplitude (dict): Amplitude of the thermal response for each harmonic.
-        - phase (dict): Phase of the thermal response for each harmonic.
+    Example:
+        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> fs = 1000.0  # Example sampling frequency
+        >>> f_stim = 10.0  # Example stimulus frequency
+        >>> harmonics = [2, 3]  # Example harmonics
+        >>> amplitude, phase = modulated_thermography(T, fs, f_stim, harmonics)
     """
-
     height, width, frames = T.shape
     t = np.arange(frames) / fs
 
