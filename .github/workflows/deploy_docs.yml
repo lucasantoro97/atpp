@@ -49,8 +49,13 @@ jobs:
 
 
       # Step 6: Upload the built HTML files as a Pages artifact
-      - name: Upload artifact to GitHub Pages
-        uses: actions/upload-pages-artifact@v4
+      - name: Fix permissions
+        run: |
+          chmod -c -R +rX "_site/" | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: docs/_build/html  # Ensure this is the correct build output directory
 
@@ -62,10 +67,10 @@ jobs:
       pages: write  # Permissions required to deploy
       id-token: write  # Needed for token verification
 
-    # # Deploy to the github-pages environment
-    # environment:
-    #   name: github-pages
-    #   url: ${{ steps.deployment.outputs.page_url }}
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
     - name: Deploy to GitHub Pages
