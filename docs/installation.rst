@@ -10,6 +10,7 @@ Before installing ATPP, make sure your system meets the following requirements:
 
 - **Python**: Version 3.x or higher
 - **pip**: Python package manager (ensure it is up to date)
+- **fnv** library from `Flir Science File SDK <https://www.flir.it/products/flir-science-file-sdk/?vertical=rd%20science&segment=solutions>`_
 
 Installing ATPP from GitHub
 ---------------------------
