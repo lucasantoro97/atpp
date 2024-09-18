@@ -19,7 +19,7 @@ Methods:
 from unittest.mock import patch, MagicMock
 import os
 import sys
-from example import select_folder_and_process, process_video
+from examples.example_basic import select_folder_and_process, process_video
 
 # Add the path to the example.py file
 sys.path.append('/home/luca/Documents/atpp/examples')

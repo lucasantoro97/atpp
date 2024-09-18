@@ -1,5 +1,5 @@
 """
-This module provides functions for lock-in imaging and related processing techniques.
+This module provides basic functions for lock-in imaging and related processing techniques.
 
 Functions:
     - lock_in_amplifier: Perform lock-in amplifier processing on temperature data.
@@ -19,6 +19,7 @@ Example usage:
 import numpy as np
 from scipy.ndimage import label
 from scipy.signal import butter, filtfilt
+from scipy.signal import find_peaks
 
 def lock_in_amplifier(temperature, time, frequency):
     """
@@ -147,40 +148,119 @@ def high_pass_filter(data, cutoff, fs, order=5):
     filtered_data = filtfilt(b, a, data)
     return filtered_data
 
-def find_se_frames(T, threshold, cutoff, fs, order):
+
+
+def find_se_frames(T):
     """
-    Find the start and end frames based on a threshold after high-pass filtering.
+    Find the start and end frames automatically after detrending.
 
     :param T: 3D array of temperature data with dimensions (height, width, frames).
     :type T: numpy.ndarray
-    :param threshold: Threshold value to determine start and end frames.
-    :type threshold: float
-    :param cutoff: Cutoff frequency for the high-pass filter.
-    :type cutoff: float
-    :param fs: Sampling frequency of the data.
-    :type fs: float
-    :param order: Order of the high-pass filter.
-    :type order: int
+    :param polynomial: Degree of the polynomial for detrending, defaults to 2.
+    :type polynomial: int, optional
     :return: Start and end frames.
-    :rtype: tuple(int, int)
+    :rtype: tuple(int or None, int or None)
 
     Example:
         >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
-        >>> threshold = 0.5  # Example threshold
-        >>> cutoff = 0.1  # Example cutoff frequency
-        >>> fs = 1000.0  # Example sampling frequency
-        >>> order = 5  # Example filter order
-        >>> start_frame, end_frame = find_se_frames(T, threshold, cutoff, fs, order)
+        >>> start_frame, end_frame = find_se_frames(T)
     """
-    # Flatten the spatial dimensions and take the maximum temperature signal
-    T_max = np.max(np.max(T, axis=0), axis=0)
+    # Get dimensions
+    height, width, frames = T.shape
 
-    # Apply high-pass filter
-    filtered_temps = high_pass_filter(T_max, cutoff, fs, order)
+    T_mean= np.mean(T, axis=(0, 1))
 
-    # Find the start and end frames based on the threshold
-    above_threshold = filtered_temps > threshold
-    start_frame = np.argmax(above_threshold)
-    end_frame = len(filtered_temps) - np.argmax(above_threshold[::-1])
+    # Calculate the range of the signal
+    T_min = np.min(T_mean)
+    T_max = np.max(T_mean)
+    T_range = T_max - T_min
+
+    # Automatically determine the thresholds
+    # Start threshold at 10% above minimum
+    start_threshold_value = T_min + 0.1 * T_range
+    # End threshold at 90% of the maximum value
+    end_threshold_value = T_min + 0.9 * T_range
+
+    # Find where the signal exceeds the start threshold
+    above_start_threshold = T_mean >= start_threshold_value
+    # Find where the signal exceeds the end threshold
+    above_end_threshold = T_mean >= end_threshold_value
+
+    if not np.any(above_start_threshold):
+        # Start threshold not crossed
+        start_frame = None
+    else:
+        # Find the first index where the signal crosses the start threshold
+        start_indices = np.where(above_start_threshold)[0]
+        start_frame = start_indices[0]
+
+        # Find the first local peak after the start frame
+        peaks, _ = find_peaks(T_mean[start_frame:])
+        if peaks.size > 0:
+            start_frame += peaks[0]
+
+    if not np.any(above_end_threshold):
+        # End threshold not crossed
+        end_frame = None
+    else:
+        # Find the last index where the signal is above the end threshold
+        end_indices = np.where(above_end_threshold)[0]
+        end_frame = end_indices[-1]
 
     return start_frame, end_frame
+
+
+
+
+def detrend(T, time=None, polynomial=2):
+    """
+    Detrend the temperature data using polynomial fitting.
+
+    :param T: 3D array of temperature data with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param time: 1D array of time points corresponding to the frames. If None, uses frame indices.
+    :type time: numpy.ndarray, optional
+    :param polynomial: Degree of the polynomial for fitting, defaults to 2.
+    :type polynomial: int, optional
+    :return: Detrended temperature data.
+    :rtype: numpy.ndarray
+
+    Example:
+        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> detrended_T = detrend(T, polynomial=2)
+    """
+    # Get dimensions
+    height, width, frames = T.shape
+    
+    if time is None:
+        time = np.arange(frames)
+        
+    # Reshape the data to (pixels, frames)
+    num_pixels = height * width
+    data = T.reshape(num_pixels, frames)  # Shape: (num_pixels, frames)
+
+    # Normalize time vector to improve numerical stability
+    t_mean = np.mean(time)
+    t_std = np.std(time)
+    t_normalized = (time - t_mean) / t_std
+
+    # Construct Vandermonde matrix for polynomial fitting
+    V = np.vander(t_normalized, N=polynomial + 1)  # Shape: (frames, polynomial + 1)
+
+    # Compute pseudoinverse of V
+    V_pinv = np.linalg.pinv(V)  # Shape: (polynomial + 1, frames)
+
+    # Compute polynomial coefficients for each pixel in a vectorized manner
+    # Data is transposed to align dimensions for matrix multiplication
+    p = V_pinv @ data.T  # Shape: (polynomial + 1, num_pixels)
+
+    # Evaluate the fitted polynomial trend
+    fitted_trend = V @ p  # Shape: (frames, num_pixels)
+
+    # Detrend the data by subtracting the fitted trend
+    detrended_data = data.T - fitted_trend  # Shape: (frames, num_pixels)
+
+    # Reshape detrended data back to original dimensions
+    detrended_T = detrended_data.T.reshape(height, width, frames)
+
+    return detrended_T
