@@ -18,6 +18,8 @@ Example usage:
 
 import numpy as np
 from scipy.signal import hilbert
+from sklearn.decomposition import PCA
+import pywt
 
 def phase_coherence_imaging(T, fs, f_stim):
     """
@@ -243,3 +245,83 @@ def modulated_thermography(T, fs, f_stim, harmonics=[2, 3]):
         phase[h] = np.arctan2(Q, I)
 
     return amplitude, phase
+
+
+
+def principal_component_thermography(T, n_components=5):
+    """
+    Perform Principal Component Thermography on a 3D array of time-domain signals.
+
+    :param T: A 3D numpy array of thermal data with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param n_components: Number of principal components to retain, defaults to 5.
+    :type n_components: int, optional
+    :return: A list of principal component images.
+    :rtype: list of numpy.ndarray
+
+    Example:
+        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+        >>> pcs = principal_component_thermography(T, n_components=5)
+    """
+    height, width, frames = T.shape
+    # Reshape data to (pixels, frames)
+    data = T.reshape(-1, frames)
+    # Center the data
+    data_mean = np.mean(data, axis=0)
+    data_centered = data - data_mean
+    # Perform PCA
+    pca = PCA(n_components=n_components)
+    principal_components = pca.fit_transform(data_centered)
+    # Reshape principal components back to image dimensions
+    pcs_images = [pc.reshape(height, width) for pc in principal_components.T]
+    return pcs_images
+
+
+
+def pulsed_phase_thermography(T, fs):
+    """
+    Perform Pulsed Phase Thermography on a 3D array of time-domain signals.
+
+    :param T: A 3D numpy array of thermal data with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param fs: Sampling frequency.
+    :type fs: float
+    :return: Amplitude and phase images at different frequencies.
+    :rtype: tuple(dict, dict)
+    """
+    height, width, frames = T.shape
+    # Perform FFT along the time axis
+    fft_data = np.fft.fft(T, axis=2)
+    freqs = np.fft.fftfreq(frames, d=1/fs)
+    # Only take positive frequencies
+    pos_mask = freqs > 0
+    fft_data = fft_data[:, :, pos_mask]
+    freqs = freqs[pos_mask]
+    # Calculate amplitude and phase
+    amplitude = np.abs(fft_data)
+    phase = np.angle(fft_data)
+    return amplitude, phase, freqs
+
+
+
+def wavelet_transform_analysis(T, wavelet='db4', level=3):
+    """
+    Perform Wavelet Transform Analysis on thermal data.
+
+    :param T: A 3D numpy array of thermal data.
+    :type T: numpy.ndarray
+    :param wavelet: Type of wavelet to use.
+    :type wavelet: str
+    :param level: Level of decomposition.
+    :type level: int
+    :return: Wavelet coefficients.
+    :rtype: list
+    """
+    height, width, frames = T.shape
+    coeffs = []
+    for i in range(height):
+        for j in range(width):
+            signal = T[i, j, :]
+            coeff = pywt.wavedec(signal, wavelet, level=level)
+            coeffs.append(coeff)
+    return coeffs
