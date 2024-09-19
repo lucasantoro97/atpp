@@ -43,7 +43,7 @@ def select_folder_and_process():
     Returns:
         None
     """
-    folder_selected = ''
+    # folder_selected = 'path/to/folder' #change this to the path of the folder you want to process
 
     results_dir = os.path.join(folder_selected, 'result')
     os.makedirs(results_dir, exist_ok=True)
