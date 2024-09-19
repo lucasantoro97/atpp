@@ -43,7 +43,7 @@ def select_folder_and_process():
     Returns:
         None
     """
-    folder_selected = '/home/luca/Documents/JTECH'
+    folder_selected = ''
 
     results_dir = os.path.join(folder_selected, 'result')
     os.makedirs(results_dir, exist_ok=True)
