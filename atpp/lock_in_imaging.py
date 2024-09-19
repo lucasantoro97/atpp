@@ -165,7 +165,7 @@ def find_se_frames(T, fs):
     # Dynamic threshold based on max derivative
     # max_derivative = np.max(dT)
     # threshold = derivative_threshold_ratio * max_derivative
-    threshold = np.max(T_mean_smooth) + 2*np.mean(dT[:win_len]) 
+    threshold = np.min(T_mean_smooth) + 2*np.mean(dT[:win_len]) 
 
     # Detecting the rising edge based on threshold
     rising_indices = np.where(dT > threshold)[0]
@@ -176,6 +176,14 @@ def find_se_frames(T, fs):
         start_frame = None
     else:
         start_frame = rising_indices[0] + 1  # Correct for diff offset
+        #then find the first local maximum after the start frame
+        peaks, _ = find_peaks(T_mean_smooth[start_frame:], height=0)
+        if peaks.size == 0:
+            print("Warning: Could not detect the start frame based on the derivative threshold.")
+            start_frame = None
+        else:
+            start_frame = start_frame + peaks[0]
+        
 
     # End frame detection based on signal amplitude threshold
     T_min = np.min(T_mean)
