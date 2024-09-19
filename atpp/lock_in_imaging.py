@@ -121,94 +121,124 @@ def mask_data(amplitude, threshold):
     mask = labeled_mask == largest_component
     return mask
 
-def high_pass_filter(data, cutoff, fs, order=5):
+
+
+
+from scipy.signal import find_peaks, savgol_filter
+
+
+def find_se_frames(T, fs):
     """
-    Apply a high-pass filter to the data.
+    Find the start and end frames automatically after detrending by detecting
+    when the temperature starts rising based on the derivative of the mean temperature signal.
 
-    :param data: 1D array of data to be filtered.
-    :type data: numpy.ndarray
-    :param cutoff: Cutoff frequency for the high-pass filter.
-    :type cutoff: float
-    :param fs: Sampling frequency of the data.
-    :type fs: float
-    :param order: Order of the filter, defaults to 5.
-    :type order: int, optional
-    :return: Filtered data.
-    :rtype: numpy.ndarray
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of temperature data with dimensions (height, width, frames).
+    fs : float
+        Sampling frequency of the signal (frames per second).
+    
 
-    Example:
-        >>> data = np.random.rand(1000)  # Example data
-        >>> cutoff = 0.1  # Example cutoff frequency
-        >>> fs = 1000.0  # Example sampling frequency
-        >>> filtered_data = high_pass_filter(data, cutoff, fs, order=5)
+    Returns
+    -------
+    tuple
+        Start and end frames as integers.
+
+    Example
+    -------
+    >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
+    >>> fs = 100.0  # Example sampling frequency
+    >>> start_frame, end_frame = find_se_frames(T, fs)
     """
-    nyquist = 0.5 * fs
-    normal_cutoff = cutoff / nyquist
-    b, a = butter(order, normal_cutoff, btype='high', analog=False)
-    filtered_data = filtfilt(b, a, data)
-    return filtered_data
-
-
-
-def find_se_frames(T):
-    """
-    Find the start and end frames automatically after detrending.
-
-    :param T: 3D array of temperature data with dimensions (height, width, frames).
-    :type T: numpy.ndarray
-    :param polynomial: Degree of the polynomial for detrending, defaults to 2.
-    :type polynomial: int, optional
-    :return: Start and end frames.
-    :rtype: tuple(int or None, int or None)
-
-    Example:
-        >>> T = np.random.rand(100, 100, 1000)  # Example 3D array
-        >>> start_frame, end_frame = find_se_frames(T)
-    """
-    # Get dimensions
     height, width, frames = T.shape
+    T_mean = np.mean(T, axis=(0, 1))
+    
+    win_len = 5  # Window length for Savitzky-Golay filter
 
-    T_mean= np.mean(T, axis=(0, 1))
+    # Smoothing the temperature data
+    T_mean_smooth = savgol_filter(T_mean, window_length=win_len, polyorder=1)
 
-    # Calculate the range of the signal
+    # Calculate the first derivative of the smoothed temperature signal
+    dT = np.diff(T_mean_smooth) * fs
+
+    # Dynamic threshold based on max derivative
+    # max_derivative = np.max(dT)
+    # threshold = derivative_threshold_ratio * max_derivative
+    threshold = np.max(T_mean_smooth) + 2*np.mean(dT[:win_len]) 
+
+    # Detecting the rising edge based on threshold
+    rising_indices = np.where(dT > threshold)[0]
+
+    # Check if any rising edges are detected
+    if rising_indices.size == 0:
+        print("Warning: Could not detect the start frame based on the derivative threshold.")
+        start_frame = None
+    else:
+        start_frame = rising_indices[0] + 1  # Correct for diff offset
+
+    # End frame detection based on signal amplitude threshold
     T_min = np.min(T_mean)
     T_max = np.max(T_mean)
     T_range = T_max - T_min
-
-    # Automatically determine the thresholds
-    # Start threshold at 10% above minimum
-    start_threshold_value = T_min + 0.1 * T_range
-    # End threshold at 90% of the maximum value
     end_threshold_value = T_min + 0.9 * T_range
-
-    # Find where the signal exceeds the start threshold
-    above_start_threshold = T_mean >= start_threshold_value
-    # Find where the signal exceeds the end threshold
     above_end_threshold = T_mean >= end_threshold_value
 
-    if not np.any(above_start_threshold):
-        # Start threshold not crossed
-        start_frame = None
-    else:
-        # Find the first index where the signal crosses the start threshold
-        start_indices = np.where(above_start_threshold)[0]
-        start_frame = start_indices[0]
-
-        # Find the first local peak after the start frame
-        peaks, _ = find_peaks(T_mean[start_frame:])
-        if peaks.size > 0:
-            start_frame += peaks[0]
-
     if not np.any(above_end_threshold):
-        # End threshold not crossed
         end_frame = None
+        print("Warning: Could not detect the end frame based on the end threshold.")
     else:
-        # Find the last index where the signal is above the end threshold
         end_indices = np.where(above_end_threshold)[0]
         end_frame = end_indices[-1]
 
+
     return start_frame, end_frame
 
+
+
+from scipy.signal import resample
+
+def desample(T, time, fs, f_stim, ratio=10):
+    """
+    Resamples the input 3D array `T` to a new sampling rate based on the stimulation frequency `f_stim`.
+
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array representing the input data with dimensions (height, width, frames).
+    time : numpy.ndarray
+        1D array representing the time vector corresponding to the frames in `T`.
+    fs : float
+        Original sampling frequency of the input data.
+    f_stim : float
+        Stimulation frequency used to determine the new sampling rate.
+    ratio : int, optional
+        Ratio of the new sampling rate to the stimulation frequency, by default 10.
+
+    Returns
+    -------
+    tuple
+        Tuple containing the resampled 3D array and the new time vector.
+
+    Example
+    -------
+    >>> T = np.random.rand(100, 100, 1000)
+    >>> time = np.linspace(0, 1, 1000)
+    >>> new_T, new_time = desample(T, time, fs=100, f_stim=10)
+    """
+    # Calculate the new sampling frequency
+    new_fs = ratio * f_stim
+    
+    # Calculate the number of new frames
+    num_frames_new = int(len(time) * new_fs / fs)
+    
+    # Resample along the time axis using scipy's resample function
+    new_T = resample(T, num_frames_new, axis=2)
+    
+    # Create a new time vector based on the new sampling frequency
+    new_time = np.linspace(time[0], time[-1], num_frames_new)
+    
+    return new_T, new_time
 
 
 
