@@ -151,7 +151,6 @@ def find_se_frames(T, fs):
     >>> fs = 100.0  # Example sampling frequency
     >>> start_frame, end_frame = find_se_frames(T, fs)
     """
-    height, width, frames = T.shape
     T_mean = np.mean(T, axis=(0, 1))
     
     win_len = 5  # Window length for Savitzky-Golay filter
@@ -246,7 +245,8 @@ def desample(T, time, fs, f_stim, ratio=10):
     # Create a new time vector based on the new sampling frequency
     new_time = np.linspace(time[0], time[-1], num_frames_new)
     
-    return new_T, new_time
+    
+    return new_T, new_time, new_fs
 
 
 

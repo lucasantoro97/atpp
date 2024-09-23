@@ -1,0 +1,4 @@
+Phase Coherence Imaging Time: 5.7357 seconds
+Synchronous Demodulation Time: 0.1168 seconds
+Hilbert Transform Analysis Time: 0.2805 seconds
+Modulated Thermography Time: 33.9699 seconds

@@ -20,9 +20,11 @@ NUM_PROCESSORS = os.cpu_count() or cpu_count()  # Fallback to multiprocessing if
 try:
     import cupy as cp
     USE_GPU = True
+    print("Using GPU-accelerated computing")
 except ImportError:
     USE_GPU = False
     cp = np  # Fallback to numpy if GPU is not available
+    print("Using CPU-based computing")
 
 
 def clear_gpu_memory():

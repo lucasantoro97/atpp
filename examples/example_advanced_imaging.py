@@ -3,9 +3,9 @@ from atpp.fnv_class import FlirVideo
 from atpp import lock_in_imaging as lim
 from atpp import advanced_imaging as aim
 import os
-
 import numpy as np
-
+import tkinter as tk
+from tkinter import filedialog
 import matplotlib.pyplot as plt
 from atpp.plt_style import set_plt_style
 
@@ -19,7 +19,9 @@ import time as ttime
 custom_cmap = get_custom_cmap()
 
 
-
+#parameters
+LI_freq = 1
+RESAMPLING_RATIO   =   10 #resampling ratio for the data (10 means 10 times less of the lock-in frequency)
 
 def select_folder_and_process():
     """
@@ -43,7 +45,14 @@ def select_folder_and_process():
     Returns:
         None
     """
-    # folder_selected = 'path/to/folder' #change this to the path of the folder you want to process
+    root = tk.Tk()
+    
+    root.withdraw()
+    folder_selected = filedialog.askdirectory()
+
+    if not folder_selected:
+        print("No folder selected")
+        return
 
     results_dir = os.path.join(folder_selected, 'result')
     os.makedirs(results_dir, exist_ok=True)
@@ -57,6 +66,22 @@ def select_folder_and_process():
             flir_video = FlirVideo(file_path)
             # process the file
             process_video(flir_video, file_results_dir)
+    
+    
+    # folder_selected = 'path/to/folder' #change this to the path of the folder you want to process
+
+    # results_dir = os.path.join(folder_selected, 'result')
+    # os.makedirs(results_dir, exist_ok=True)
+
+    # for file_name in os.listdir(folder_selected):
+    #     if file_name.endswith('.ats'):
+    #         file_path = os.path.join(folder_selected, file_name)
+    #         file_results_dir = os.path.join(results_dir, os.path.splitext(file_name)[0])
+    #         os.makedirs(file_results_dir, exist_ok=True)
+    #         # get the FlirVideo object
+    #         flir_video = FlirVideo(file_path)
+    #         # process the file
+    #         process_video(flir_video, file_results_dir)
 
 def process_video(flir_video, results_dir):
     #do stuff with the flir_video object
@@ -67,8 +92,12 @@ def process_video(flir_video, results_dir):
     time=flir_video.time
     # plt.plot(time, np.max(np.max(T, axis=0), axis=0))
     # plt.show()
+    #desample
+    T,time,fs = lim.desample(T, time , fs, LI_freq, RESAMPLING_RATIO)
     
-    start_frame, end_frame = lim.find_se_frames(T, threshold=0.5, cutoff=0.01, fs=fs, order=5)
+    print('New framrate after desampling:', fs)
+    
+    start_frame, end_frame = lim.find_se_frames(T, fs=fs)
     # cut the data in the range
     T = T[:, :, start_frame:end_frame]
     time = time[start_frame:end_frame]
@@ -97,7 +126,7 @@ def process_video(flir_video, results_dir):
     
 
     
-    f_stim = 0.1
+    f_stim = LI_freq
 
     # Measure time for phase coherence imaging
     start_time = ttime.time()
@@ -115,12 +144,17 @@ def process_video(flir_video, results_dir):
     hilbert_transform_time = ttime.time() - start_time
     #calculate standard deviation of phase and amplitude along time axis for each pixel
     # Only consider the last 10 seconds of data
-    last_10_seconds = time >= (time[-1] - 10)
-    hil_phase_last_10 = hil_phase[:, :, last_10_seconds]
-    hil_amplitude_last_10 = hil_amplitude[:, :, last_10_seconds]
+    # last_10_seconds = time >= (time[-1] - 10)
+    # hil_phase_last_10 = hil_phase[:, :, last_10_seconds]
+    # hil_amplitude_last_10 = hil_amplitude[:, :, last_10_seconds]
 
-    phase_std = np.std(hil_phase_last_10, axis=2)
-    amplitude_std = np.std(hil_amplitude_last_10, axis=2)
+    # phase_std = np.std(hil_phase_last_10, axis=2)
+    # amplitude_std = np.std(hil_amplitude_last_10, axis=2)
+    # print(hil_phase)
+    phase_std = np.std(hil_phase, axis=2)
+    amplitude_std = np.std(hil_amplitude, axis=2)
+    
+    
     
     # # Plot the standard deviation of amplitude vs time for each pixel
     # plt.figure()
