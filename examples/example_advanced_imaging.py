@@ -284,6 +284,7 @@ def process_video(flir_video, results_dir):
     plt.ylim(y_end, y_start)  # Note: y-axis is inverted in images
 
     plt.tight_layout()
+    plt.savefig(os.path.join(results_dir, 'results.png'))
     plt.show()
 
     # Print and save the profiling results
