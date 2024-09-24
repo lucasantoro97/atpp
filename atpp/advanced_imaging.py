@@ -20,6 +20,9 @@ NUM_PROCESSORS = os.cpu_count() or cpu_count()  # Fallback to multiprocessing if
 try:
     import cupy as cp
     USE_GPU = True
+    #free memory
+    cp.get_default_memory_pool().free_all_blocks()
+    cp.cuda.Stream.null.synchronize()    
     print("Using GPU-accelerated computing")
 except ImportError:
     USE_GPU = False
@@ -32,19 +35,71 @@ def clear_gpu_memory():
     cp.get_default_memory_pool().free_all_blocks()
     cp.cuda.Stream.null.synchronize()
 
+def get_max_chunk_frames(height, width, dtype, extra_arrays=2, overhead=0.9):
+    """
+    Calculate the maximum number of frames that can be processed at once without exceeding GPU memory.
 
-import numpy as np
-import cupy as cp
-from concurrent.futures import ProcessPoolExecutor
-from scipy.ndimage import label
+    Parameters:
+    - height: int
+    - width: int
+    - dtype: data type (e.g., cp.float16)
+    - extra_arrays: int, number of extra arrays of the same size as T_gpu required during processing
+    - overhead: float, fraction of the free memory to use (e.g., 0.9 means use 90% of free memory)
 
-# Define these globally or pass them as parameters
-USE_GPU = True  # Set to False to use CPU-based processing
-NUM_PROCESSORS = os.cpu_count() or 1  # Automatically set number of processors
+    Returns:
+    - max_frames: int, maximum number of frames that can be processed at once
+    """
+    if USE_GPU:
+        free_mem, total_mem = cp.cuda.Device().mem_info
+        free_mem *= overhead  # Use only a fraction of the free memory
 
-def clear_gpu_memory():
-    """Function to clear all GPU memory blocks."""
-    cp.get_default_memory_pool().free_all_blocks()
+        bytes_per_element = cp.dtype(dtype).itemsize
+        per_frame_memory = height * width * bytes_per_element * (1 + extra_arrays)
+
+        max_frames = int(free_mem / per_frame_memory)
+        max_frames = max(1, max_frames)  # Ensure at least one frame is processed
+        return max_frames
+    else:
+        return None  # Not applicable for CPU processing
+
+
+def get_max_chunk_pixels(frames, dtype, extra_arrays=2, overhead=0.9):
+    """
+    Calculate the maximum number of pixels that can be processed at once without exceeding GPU memory.
+
+    Parameters:
+    - frames: int
+    - dtype: data type (e.g., cp.float16)
+    - extra_arrays: int, number of extra arrays of the same size as T_gpu required during processing
+    - overhead: float, fraction of the free memory to use (e.g., 0.9 means use 90% of free memory)
+
+    Returns:
+    - max_pixels: int, maximum number of pixels that can be processed at once
+    """
+    if USE_GPU:
+        # Synchronize and clear the CuPy memory pool
+        cp.cuda.Device().synchronize()
+        cp.get_default_memory_pool().free_all_blocks()
+
+        # Get the correct memory information
+        free_mem, total_mem = cp.cuda.Device().mem_info
+        # print(f"Total Memory: {total_mem / (1024**2)} MB, Free Memory: {free_mem / (1024**2)} MB")
+
+        free_mem *= overhead  # Use only a fraction of the free memory
+
+        bytes_per_element = cp.dtype(dtype).itemsize
+        per_pixel_memory = frames * bytes_per_element * (1 + extra_arrays)
+        
+        # print(f"Free memory: {free_mem} bytes")
+        # print(f"Per pixel memory: {per_pixel_memory} bytes")
+        # print(f"Bytes per element: {bytes_per_element}")
+
+        max_pixels = int(free_mem / per_pixel_memory)
+        max_pixels = max(1, max_pixels)  # Ensure at least one pixel is processed
+        return max_pixels
+    else:
+        return None  # Not applicable for CPU processing
+
 
 def phase_coherence_imaging(T, fs, f_stim):
     """
@@ -67,7 +122,7 @@ def phase_coherence_imaging(T, fs, f_stim):
     try:
         if USE_GPU:
             # Convert T to CuPy array for GPU processing
-            T_gpu = cp.asarray(T, dtype=cp.float32)
+            T_gpu = cp.asarray(T, dtype=cp.float16)
             height, width, frames = T_gpu.shape
 
             # Create time vector
@@ -94,7 +149,7 @@ def phase_coherence_imaging(T, fs, f_stim):
             phase = np.arctan2(Q, I)
 
             # Phase coherence computation
-            phase_diff = np.zeros((height, width), dtype=np.float32)
+            phase_diff = np.zeros((height, width), dtype=np.float16)
             for i in range(1, height - 1):
                 for j in range(1, width - 1):
                     neighbors = [
@@ -108,7 +163,7 @@ def phase_coherence_imaging(T, fs, f_stim):
             # Avoid division by zero
             max_diff = np.max(phase_diff)
             if max_diff == 0:
-                phase_coherence = np.ones((height, width), dtype=np.float32)
+                phase_coherence = np.ones((height, width), dtype=np.float16)
             else:
                 phase_coherence = 1 - (phase_diff / max_diff)
 
@@ -127,8 +182,8 @@ def phase_coherence_imaging(T, fs, f_stim):
             ref_cos = np.cos(2 * np.pi * f_stim * t)
 
             # Initialize I and Q arrays
-            I = np.zeros((height, width), dtype=np.float32)
-            Q = np.zeros((height, width), dtype=np.float32)
+            I = np.zeros((height, width), dtype=np.float16)
+            Q = np.zeros((height, width), dtype=np.float16)
 
             def calculate_iq(i):
                 """
@@ -159,7 +214,7 @@ def phase_coherence_imaging(T, fs, f_stim):
             phase = np.arctan2(Q, I)
 
             # Phase coherence computation
-            phase_diff = np.zeros((height, width), dtype=np.float32)
+            phase_diff = np.zeros((height, width), dtype=np.float16)
             for i in range(1, height - 1):
                 for j in range(1, width - 1):
                     neighbors = [
@@ -173,7 +228,7 @@ def phase_coherence_imaging(T, fs, f_stim):
             # Avoid division by zero
             max_diff = np.max(phase_diff)
             if max_diff == 0:
-                phase_coherence = np.ones((height, width), dtype=np.float32)
+                phase_coherence = np.ones((height, width), dtype=np.float16)
             else:
                 phase_coherence = 1 - (phase_diff / max_diff)
 
@@ -182,7 +237,6 @@ def phase_coherence_imaging(T, fs, f_stim):
     except Exception as e:
         print(f"Error in phase_coherence_imaging: {e}")
         return None, None, None
-
 
 
 def synchronous_demodulation(T, fs, f_stim):
@@ -206,7 +260,7 @@ def synchronous_demodulation(T, fs, f_stim):
     try:
         if USE_GPU:
             # Convert T to CuPy array for GPU processing
-            T_gpu = cp.asarray(T, dtype=cp.float32)
+            T_gpu = cp.asarray(T, dtype=cp.float16)
             height, width, frames = T_gpu.shape
 
             # Create time vector
@@ -251,8 +305,8 @@ def synchronous_demodulation(T, fs, f_stim):
             ref_cos = ref_cos[np.newaxis, np.newaxis, :]
 
             # Initialize I and Q arrays
-            I = np.zeros((height, width), dtype=np.float32)
-            Q = np.zeros((height, width), dtype=np.float32)
+            I = np.zeros((height, width), dtype=np.float16)
+            Q = np.zeros((height, width), dtype=np.float16)
 
             def calculate_iq(i):
                 """
@@ -289,8 +343,6 @@ def synchronous_demodulation(T, fs, f_stim):
         return None, None
 
 
-
-
 def hilbert_transform_analysis(T):
     """
     Perform Hilbert transform analysis on a 3D array of time-domain signals to extract amplitude and phase maps.
@@ -307,69 +359,89 @@ def hilbert_transform_analysis(T):
     """
     try:
         if USE_GPU:
-            # Convert T to CuPy array for GPU processing
-            T_gpu = cp.asarray(T, dtype=cp.float32)
-            height, width, frames = T_gpu.shape
+            height, width, frames = T.shape
 
-            # Perform FFT-based Hilbert transform
-            fft_data = cp.fft.fft(T_gpu, axis=2)
+            # Calculate the maximum number of pixels we can process at once
+            max_chunk_pixels = get_max_chunk_pixels(frames, cp.complex128, extra_arrays=7, overhead=0.9)
+            total_pixels = height * width
+            print(f"max_chunk_pixels: {max_chunk_pixels}, total_pixels: {total_pixels}")
 
-            # Create the Hilbert transform multiplier
-            h = cp.zeros(frames, dtype=cp.float32)
-            if frames % 2 == 0:
-                h[0] = 1
-                h[1:frames//2] = 2
-                h[frames//2] = 1
-                # h[frames//2 +1 :] remains 0
-            else:
-                h[0] = 1
-                h[1:(frames +1)//2] = 2
-                # h[(frames +1)//2 :] remains 0
+            # Initialize amplitude and phase arrays
+            amplitude = np.zeros((height, width, frames), dtype=np.float16)
+            phase = np.zeros((height, width, frames), dtype=np.float16)
 
-            # Reshape h for broadcasting
-            h = h[cp.newaxis, cp.newaxis, :]
+            rows_per_chunk = max_chunk_pixels // width
+            row_chunks = (height) // rows_per_chunk
 
-            # Apply the Hilbert multiplier
-            analytic_fft = fft_data * h
+            if row_chunks != 1 and row_chunks != 0:
+                print(f"Needed chunks: {row_chunks}")
+            elif row_chunks == 0:
+                row_chunks = 1
+                print(f"Correcting --> Needed chunks: {row_chunks}")
 
-            # Inverse FFT to get the analytic signal
-            analytic_signal = cp.fft.ifft(analytic_fft, axis=2)
+            for chunk_idx in range(row_chunks):
+                start_row = chunk_idx * rows_per_chunk
+                end_row = min((chunk_idx + 1) * rows_per_chunk, height)  # Ensure we do not exceed the image height
 
-            # Extract amplitude and phase
-            amplitude_gpu = cp.abs(analytic_signal)
-            phase_gpu = cp.unwrap(cp.angle(analytic_signal))
+                # Slicing the image arrays directly
+                chunk_indices = np.s_[start_row:end_row, :]
+                # Extract the chunk of data
+                T_chunk = T[chunk_indices]
+                T_chunk_gpu = cp.asarray(T_chunk, dtype=cp.float16)
 
-            # Transfer results back to CPU
-            amplitude = amplitude_gpu.get()
-            phase = phase_gpu.get()
+                # Perform FFT-based Hilbert transform along the time axis (axis=2)
+                fft_data = cp.fft.fft(T_chunk_gpu, axis=2)
+
+                # Create the Hilbert transform multiplier
+                frames_chunk = frames
+                h = cp.zeros(frames_chunk, dtype=cp.float16)
+                if frames_chunk % 2 == 0:
+                    h[0] = 1
+                    h[1:frames_chunk // 2] = 2
+                    h[frames_chunk // 2] = 1
+                else:
+                    h[0] = 1
+                    h[1:(frames_chunk + 1) // 2] = 2
+
+                # Reshape h for broadcasting over the first two dimensions
+                h = h[cp.newaxis, cp.newaxis, :]
+
+                # Apply the Hilbert multiplier
+                analytic_fft = fft_data * h
+
+                # Inverse FFT along the time axis (axis=2) to get the analytic signal
+                analytic_signal = cp.fft.ifft(analytic_fft, axis=2)
+
+                # Extract amplitude and phase
+                amplitude_gpu = cp.abs(analytic_signal)
+                phase_gpu = cp.unwrap(cp.angle(analytic_signal))
+
+                # Transfer results back to CPU
+                amplitude_chunk = amplitude_gpu.get()
+                phase_chunk = phase_gpu.get()
+
+                # Assign to the appropriate locations in the amplitude and phase arrays
+                amplitude[chunk_indices] = amplitude_chunk
+                phase[chunk_indices] = phase_chunk
+
+                # Free GPU memory
+                del T_chunk_gpu, fft_data, analytic_fft, analytic_signal, amplitude_gpu, phase_gpu
+                clear_gpu_memory()
 
             # Clear GPU memory
             clear_gpu_memory()
 
         else:
-            # CPU-based processing
+            # CPU-based processing remains unchanged
             height, width, frames = T.shape
 
             # Initialize amplitude and phase arrays
-            amplitude = np.zeros((height, width), dtype=np.float32)
-            phase = np.zeros((height, width), dtype=np.float32)
+            amplitude = np.zeros((height, width), dtype=np.float16)
+            phase = np.zeros((height, width), dtype=np.float16)
 
             def calculate_hilbert(i):
-                """
-                Calculate amplitude and phase for a specific row.
-
-                Parameters
-                ----------
-                i : int
-                    Row index.
-
-                Returns
-                -------
-                tuple
-                    Tuple containing row index, amplitude_row, and phase_row.
-                """
-                row_amplitude = np.zeros(width, dtype=np.float32)
-                row_phase = np.zeros(width, dtype=np.float32)
+                row_amplitude = np.zeros(width, dtype=np.float16)
+                row_phase = np.zeros(width, dtype=np.float16)
                 for j in range(width):
                     signal = T[i, j, :]
                     analytic_signal = hilbert(signal)
@@ -388,8 +460,6 @@ def hilbert_transform_analysis(T):
     except Exception as e:
         print(f"Error in hilbert_transform_analysis: {e}")
         return None, None
-
-
 
 
 def thermal_signal_reconstruction(T, order=5):
@@ -496,8 +566,7 @@ def principal_component_thermography(T, n_components=5):
     return pcs_images
 
 
-
-def pulsed_phase_thermography(T, fs, use_gpu=True, batch_size=100):
+def pulsed_phase_thermography(T, fs):
     """
     Perform Pulsed Phase Thermography (PPT) on a 3D array of time-domain signals.
 
@@ -507,10 +576,7 @@ def pulsed_phase_thermography(T, fs, use_gpu=True, batch_size=100):
         3D array of thermal data with dimensions (height, width, frames).
     fs : float
         Sampling frequency of the signal (samples per second).
-    use_gpu : bool, optional
-        Whether to use GPU (CuPy) for computations, default is True.
-    batch_size : int, optional
-        Number of frames to process in each batch to manage memory usage, default is 100.
+
 
     Returns
     -------
@@ -524,18 +590,20 @@ def pulsed_phase_thermography(T, fs, use_gpu=True, batch_size=100):
     >>> amplitude, phase, freqs = pulsed_phase_thermography(T, fs)
     """
     try:
-        if use_gpu:
+        if USE_GPU:
             # Convert T to CuPy array for GPU processing
-            T_gpu = cp.asarray(T, dtype=cp.float32)
+            T_gpu = cp.asarray(T, dtype=cp.float16)
             height, width, frames = T_gpu.shape
             print(f"Processing on GPU with shape: {T_gpu.shape}")
 
             # Initialize list to collect FFT batches
             fft_batches = []
+            
+            chunks= get_max_chunk_frames(height, width, cp.complex128, extra_arrays=7, overhead=0.9)
 
             # Process data in batches to manage GPU memory
-            for start in range(0, frames, batch_size):
-                end = min(start + batch_size, frames)
+            for start in range(0, frames, chunks):
+                end = min(start + chunks, frames)
                 print(f"Processing frames {start} to {end} on GPU")
 
                 # Perform FFT on the current batch
@@ -610,8 +678,6 @@ def pulsed_phase_thermography(T, fs, use_gpu=True, batch_size=100):
         return None, None, None
 
 
-
-
 def wavelet_transform_analysis(T, wavelet='db4', level=3):
     """ Perform Wavelet Transform Analysis on a 3D array of thermal data. """
     height, width, frames = T.shape
@@ -659,8 +725,7 @@ def visualize_comparison(T, fs, f_stim, time):
 
     plt.tight_layout()
     plt.show()
-    
-    
+
 
 def visualize_wavelet_coefficients(T, wavelet='db4', level=3):
     """
