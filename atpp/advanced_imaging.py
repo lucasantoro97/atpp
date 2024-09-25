@@ -122,27 +122,51 @@ def phase_coherence_imaging(T, fs, f_stim):
     try:
         if USE_GPU:
             # Convert T to CuPy array for GPU processing
-            T_gpu = cp.asarray(T, dtype=cp.float16)
-            height, width, frames = T_gpu.shape
+            height, width, frames = T.shape
 
-            # Create time vector
-            t = cp.arange(frames) / fs
+            # Calculate the maximum number of pixels we can process at once
+            max_chunk_pixels = get_max_chunk_pixels(frames, cp.float16, extra_arrays=2, overhead=0.9)
+            total_pixels = height * width
 
-            # Reference signals for demodulation
-            ref_sin = cp.sin(2 * cp.pi * f_stim * t)
-            ref_cos = cp.cos(2 * cp.pi * f_stim * t)
+            # Initialize I and Q arrays
+            I = np.zeros((height, width), dtype=np.float16)
+            Q = np.zeros((height, width), dtype=np.float16)
 
-            # Reshape reference signals for broadcasting
-            ref_sin = ref_sin[cp.newaxis, cp.newaxis, :]
-            ref_cos = ref_cos[cp.newaxis, cp.newaxis, :]
+            # Process data in chunks
+            for start_pixel in range(0, total_pixels, max_chunk_pixels):
+                end_pixel = min(start_pixel + max_chunk_pixels, total_pixels)
+                chunk_indices = np.unravel_index(range(start_pixel, end_pixel), (height, width))
 
-            # Compute I and Q using vectorized operations on GPU
-            I_gpu = cp.sum(T_gpu * ref_cos, axis=2) / frames
-            Q_gpu = cp.sum(T_gpu * ref_sin, axis=2) / frames
+                # Extract the chunk of data
+                T_chunk = T[chunk_indices]
+                T_chunk_gpu = cp.asarray(T_chunk, dtype=cp.float16)
 
-            # Transfer results back to CPU
-            I = I_gpu.get()
-            Q = Q_gpu.get()
+                # Create time vector
+                t = cp.arange(frames) / fs
+
+                # Reference signals for demodulation
+                ref_sin = cp.sin(2 * cp.pi * f_stim * t)
+                ref_cos = cp.cos(2 * cp.pi * f_stim * t)
+
+                # Reshape reference signals for broadcasting
+                ref_sin = ref_sin[cp.newaxis, :]
+                ref_cos = ref_cos[cp.newaxis, :]
+
+                # Compute I and Q using vectorized operations on GPU
+                I_chunk_gpu = cp.sum(T_chunk_gpu * ref_cos, axis=1) / frames
+                Q_chunk_gpu = cp.sum(T_chunk_gpu * ref_sin, axis=1) / frames
+
+                # Transfer results back to CPU
+                I_chunk = I_chunk_gpu.get()
+                Q_chunk = Q_chunk_gpu.get()
+
+                # Assign to the appropriate locations in the I and Q arrays
+                I[chunk_indices] = I_chunk
+                Q[chunk_indices] = Q_chunk
+
+                # Free GPU memory
+                del T_chunk_gpu, I_chunk_gpu, Q_chunk_gpu
+                clear_gpu_memory()
 
             # Compute amplitude and phase
             amplitude = np.sqrt(I**2 + Q**2)
@@ -162,7 +186,7 @@ def phase_coherence_imaging(T, fs, f_stim):
 
             # Avoid division by zero
             max_diff = np.max(phase_diff)
-            if max_diff == 0:
+            if (max_diff == 0):
                 phase_coherence = np.ones((height, width), dtype=np.float16)
             else:
                 phase_coherence = 1 - (phase_diff / max_diff)
