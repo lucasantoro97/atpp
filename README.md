@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://img.shields.io/github/actions/workflow/status/lucasantoro97/atpp/deploy_docs.yml?branch=main)](https://lucasantoro97.github.io/atpp/)
 [![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://lucasantoro97.github.io/atpp/)
-
+[![GitHub Issues](https://img.shields.io/github/issues/lucasantoro97/atpp)]
 
 ## Overview
 
@@ -30,6 +30,14 @@ Before installation, ensure that the following dependencies are met:
 - Python 3.x
 - Required libraries (listed in `requirements.txt`)
 - fnv library from [Flir Science File SDK](https://www.flir.it/products/flir-science-file-sdk/?vertical=rd%20science&segment=solutions)
+
+## Build Status
+
+| Python Version | Build Status |
+| -------------- | ------------ |
+| 3.9            | ![Build Status](https://github.com/lucasantoro97/atpp/actions/workflows/python-package.yml/badge.svg?branch=main&event=push&matrix.python-version=3.9) |
+| 3.10           | ![Build Status](https://github.com/lucasantoro97/atpp/actions/workflows/python-package.yml/badge.svg?branch=main&event=push&matrix.python-version=3.10) |
+| 3.11           | ![Build Status](https://github.com/lucasantoro97/atpp/actions/workflows/python-package.yml/badge.svg?branch=main&event=push&matrix.python-version=3.11) |
 
 ## Installation
 
