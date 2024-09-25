@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://img.shields.io/github/actions/workflow/status/lucasantoro97/atpp/deploy_docs.yml?branch=main)](https://lucasantoro97.github.io/atpp/)
 [![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://lucasantoro97.github.io/atpp/)
-[![GitHub Issues](https://img.shields.io/github/issues/lucasantoro97/atpp)]
+![GitHub Issues](https://img.shields.io/github/issues/lucasantoro97/atpp)
 
 ## Overview
 
