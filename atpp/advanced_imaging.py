@@ -787,7 +787,7 @@ def visualize_wavelet_coefficients(T, wavelet='db4', level=3):
     plt.show()
 
 
-
+def independent_component_thermography(T, n_components=5):
     """
     Perform Independent Component Thermography (ICT) on a 3D array of time-domain signals.
 
