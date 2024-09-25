@@ -221,7 +221,11 @@ def phase_coherence_imaging(T, fs, f_stim):
                         phase[i - 1, j],
                         phase[i + 1, j],
                         phase[i, j - 1],
-                        phase[i, j + 1]
+                        phase[i, j + 1],
+                        phase[i - 1, j - 1],
+                        phase[i - 1, j + 1],
+                        phase[i + 1, j - 1],
+                        phase[i + 1, j + 1]
                     ]
                     phase_diff[i, j] = np.std([phase[i, j] - neighbor for neighbor in neighbors])
 
@@ -784,3 +788,803 @@ def visualize_wavelet_coefficients(T, wavelet='db4', level=3):
 
 
 
+    """
+    Perform Independent Component Thermography (ICT) on a 3D array of time-domain signals.
+
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of time-domain signals with dimensions (height, width, frames).
+    n_components : int, optional
+        Number of independent components to extract (default is 5).
+
+    Returns
+    -------
+    ict_images : list of numpy.ndarray
+        List of independent component images.
+
+    Example
+    -------
+    >>> T = np.random.rand(100, 100, 1000)
+    >>> ict_images = independent_component_thermography(T, n_components=5)
+    """
+    
+    try:
+        # Get dimensions
+        height, width, frames = T.shape
+
+        # Reshape T to (pixels, frames)
+        data = T.reshape(-1, frames)
+        data_mean = np.mean(data, axis=0)
+        data_centered = data - data_mean
+
+        # Perform ICA
+        from sklearn.decomposition import FastICA        
+        from skimage.transform import resize
+
+        ica = FastICA(n_components=n_components, random_state=0)
+        independent_components = ica.fit_transform(data_centered.T).T
+        #reconstruct images with inverse transform
+        reconstructed_data = ica.inverse_transform(independent_components.T).T
+
+
+        return reconstructed_data.reshape(height, width, frames)
+
+    except Exception as e:
+        print(f"Error in independent_component_thermography: {e}")
+        return None
+
+
+
+
+def monogenic_signal_analysis(T):
+    """
+    Perform Monogenic Signal Analysis on a 3D array of thermal data to extract local amplitude and phase maps.
+    
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    
+    Returns
+    -------
+    amplitude : numpy.ndarray
+        Local amplitude map.
+    phase : numpy.ndarray
+        Local phase map.
+    orientation : numpy.ndarray
+        Local orientation map.
+    
+    Example
+    -------
+    >>> amplitude, phase, orientation = monogenic_signal_analysis(T)
+    """
+    try:
+        import numpy as np
+        from scipy import ndimage
+        from scipy.fft import fftn, ifftn, fftshift
+
+        # Get dimensions
+        height, width, frames = T.shape
+        
+        # Compute the mean image over time
+        T_mean = np.mean(T, axis=2)
+        
+        # Compute the Riesz transform kernels
+        u = np.fft.fftfreq(height).reshape(-1, 1)
+        v = np.fft.fftfreq(width).reshape(1, -1)
+        radius = np.sqrt(u**2 + v**2) + np.finfo(float).eps  # Avoid division by zero
+
+        # Riesz kernels
+        R1 = -1j * u / radius
+        R2 = -1j * v / radius
+
+        # Perform Fourier transform of the mean image
+        F = fftn(T_mean)
+
+        # Apply Riesz transform
+        R1F = R1 * F
+        R2F = R2 * F
+
+        # Inverse Fourier transform to get spatial domain representations
+        monogenic_R1 = np.real(ifftn(R1F))
+        monogenic_R2 = np.real(ifftn(R2F))
+
+        # Compute local amplitude
+        amplitude = np.sqrt(T_mean**2 + monogenic_R1**2 + monogenic_R2**2)
+
+        # Compute local phase
+        phase = np.arctan2(np.sqrt(monogenic_R1**2 + monogenic_R2**2), T_mean)
+
+        # Compute local orientation
+        orientation = np.arctan2(monogenic_R2, monogenic_R1)
+
+        return amplitude, phase, orientation
+
+    except Exception as e:
+        print(f"Error in monogenic_signal_analysis: {e}")
+        return None, None, None
+
+# def monogenic_signal_analysis_gpu(T):
+#     """
+#     GPU-accelerated version of Monogenic Signal Analysis.
+#     """
+#     try:
+#         import cupy as cp
+#         from cupyx.scipy.fft import fftn, ifftn
+#         height, width, frames = T.shape
+
+#         # Convert T to GPU array
+#         T_gpu = cp.asarray(T, dtype=cp.float32)
+
+#         # Compute the mean image over time
+#         T_mean_gpu = cp.mean(T_gpu, axis=2)
+
+#         # Compute the Riesz transform kernels
+#         u = cp.fft.fftfreq(height).reshape(-1, 1)
+#         v = cp.fft.fftfreq(width).reshape(1, -1)
+#         radius = cp.sqrt(u**2 + v**2) + cp.finfo(cp.float32).eps  # Avoid division by zero
+
+#         # Riesz kernels
+#         R1 = -1j * u / radius
+#         R2 = -1j * v / radius
+
+#         # Perform Fourier transform of the mean image
+#         F = fftn(T_mean_gpu)
+
+#         # Apply Riesz transform
+#         R1F = R1 * F
+#         R2F = R2 * F
+
+#         # Inverse Fourier transform to get spatial domain representations
+#         monogenic_R1 = cp.real(ifftn(R1F))
+#         monogenic_R2 = cp.real(ifftn(R2F))
+
+#         # Compute local amplitude
+#         amplitude_gpu = cp.sqrt(T_mean_gpu**2 + monogenic_R1**2 + monogenic_R2**2)
+
+#         # Compute local phase
+#         phase_gpu = cp.arctan2(cp.sqrt(monogenic_R1**2 + monogenic_R2**2), T_mean_gpu)
+
+#         # Compute local orientation
+#         orientation_gpu = cp.arctan2(monogenic_R2, monogenic_R1)
+
+#         # Transfer results back to CPU
+#         amplitude = cp.asnumpy(amplitude_gpu)
+#         phase = cp.asnumpy(phase_gpu)
+#         orientation = cp.asnumpy(orientation_gpu)
+
+#         # Clear GPU memory
+#         cp.get_default_memory_pool().free_all_blocks()
+
+#         return amplitude, phase, orientation
+
+#     except Exception as e:
+#         print(f"Error in monogenic_signal_analysis_gpu: {e}")
+#         return None, None, None
+
+
+def phase_congruency_analysis(T, n_scale=4, n_orientation=4, min_wavelength=6, mult=2.1, sigma_onf=0.55, k=2.0, cut_off=0.5, g=10):
+    """
+    Perform Phase Congruency Analysis on a 3D array of thermal data to extract phase congruency maps.
+    
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    n_scale : int, optional
+        Number of wavelet scales (default is 4).
+    n_orientation : int, optional
+        Number of filter orientations (default is 4).
+    min_wavelength : int, optional
+        Wavelength of the smallest scale filter (default is 6).
+    mult : float, optional
+        Scaling factor between successive filters (default is 2.1).
+    sigma_onf : float, optional
+        Ratio of the standard deviation of the Gaussian describing the log Gabor filter's transfer function (default is 0.55).
+    k : float, optional
+        Noisy input parameter (default is 2.0).
+    cut_off : float, optional
+        Fractional measure of frequency spread below which phase congruency values get penalized (default is 0.5).
+    g : float, optional
+        Controls the sharpness of the transition in the sigmoid function used to weight phase congruency for frequency spread (default is 10).
+    
+    Returns
+    -------
+    phase_congruency : numpy.ndarray
+        Phase congruency map.
+    
+    Example
+    -------
+    >>> phase_congruency = phase_congruency_analysis(T)
+    """
+    try:
+        import numpy as np
+        import cv2
+        import scipy.signal
+        import math
+
+        # Compute the mean image over time
+        T_mean = np.mean(T, axis=2)
+        T_mean = T_mean.astype(np.float32)
+
+        # Initialize parameters
+        rows, cols = T_mean.shape
+        epsilon = 1e-5  # Small value to avoid division by zero
+
+        # Pre-compute values
+        imagefft = np.fft.fft2(T_mean)
+        zero = np.zeros((rows, cols))
+        total_energy = zero.copy()
+        total_sum_an = zero.copy()
+        orientation = np.zeros((rows, cols))
+        PC = zero.copy()
+
+        # Create Log-Gabor filters
+        x, y = np.meshgrid(np.linspace(-0.5, 0.5, cols), np.linspace(-0.5, 0.5, rows))
+        radius = np.sqrt(x**2 + y**2)
+        radius[rows // 2, cols // 2] = 1  # Avoid division by zero at the center
+
+        theta = np.arctan2(-y, x)
+        theta[rows // 2, cols // 2] = 0
+
+        sin_theta = np.sin(theta)
+        cos_theta = np.cos(theta)
+
+        # Initialize accumulators
+        sum_e__this_orient = zero.copy()
+        sum_o_this_orient = zero.copy()
+        sum_an_2 = zero.copy()
+        energy = zero.copy()
+
+        # Filters for each orientation
+        for o in range(n_orientation):
+            angl = o * math.pi / n_orientation
+            ds = sin_theta * np.cos(angl) - cos_theta * np.sin(angl)
+            dc = cos_theta * np.cos(angl) + sin_theta * np.sin(angl)
+            dtheta = np.abs(np.arctan2(ds, dc))
+            spread = np.exp((-dtheta**2) / (2 * (math.pi / n_orientation)**2))
+
+            sum_e = zero.copy()
+            sum_o = zero.copy()
+            sum_an = zero.copy()
+            for s in range(n_scale):
+                wavelength = min_wavelength * mult**s
+                fo = 1.0 / wavelength
+                log_gabor = np.exp((-(np.log(radius / fo))**2) / (2 * np.log(sigma_onf)**2))
+                log_gabor[radius < (fo / 2)] = 0
+
+                filter_ = log_gabor * spread
+                eo = np.fft.ifft2(imagefft * filter_)
+
+                an = np.abs(eo)
+                sum_an += an
+                sum_e += np.real(eo)
+                sum_o += np.imag(eo)
+
+            # Compute phase congruency for this orientation
+            energy = np.sqrt(sum_e**2 + sum_o**2) + epsilon
+            mean_an = sum_an / n_scale + epsilon
+            term = (energy - k * mean_an) / (epsilon + mean_an)
+            term = np.maximum(term, 0)
+            PC += term
+
+        # Normalize phase congruency
+        phase_congruency = PC / n_orientation
+        phase_congruency = np.clip(phase_congruency, 0, 1)
+
+        return phase_congruency
+
+    except Exception as e:
+        print(f"Error in phase_congruency_analysis: {e}")
+        return None
+
+# def phase_congruency_analysis_gpu(T, n_scale=4, n_orientation=4, min_wavelength=6, mult=2.1, sigma_onf=0.55, k=2.0, cut_off=0.5, g=10):
+#     """
+#     GPU-accelerated version of Phase Congruency Analysis.
+#     """
+#     try:
+#         import cupy as cp
+
+#         # Compute the mean image over time
+#         T_gpu = cp.asarray(T, dtype=cp.float32)
+#         T_mean_gpu = cp.mean(T_gpu, axis=2)
+#         rows, cols = T_mean_gpu.shape
+#         epsilon = 1e-5  # Small value to avoid division by zero
+
+#         # Pre-compute values
+#         imagefft = cp.fft.fft2(T_mean_gpu)
+#         zero = cp.zeros((rows, cols), dtype=cp.float32)
+#         PC = zero.copy()
+
+#         # Create Log-Gabor filters
+#         x, y = cp.meshgrid(cp.linspace(-0.5, 0.5, cols), cp.linspace(-0.5, 0.5, rows))
+#         radius = cp.sqrt(x**2 + y**2)
+#         radius[rows // 2, cols // 2] = 1  # Avoid division by zero at the center
+
+#         theta = cp.arctan2(-y, x)
+#         theta[rows // 2, cols // 2] = 0
+
+#         sin_theta = cp.sin(theta)
+#         cos_theta = cp.cos(theta)
+
+#         # Filters for each orientation
+#         for o in range(n_orientation):
+#             angl = o * cp.pi / n_orientation
+#             ds = sin_theta * cp.cos(angl) - cos_theta * cp.sin(angl)
+#             dc = cos_theta * cp.cos(angl) + sin_theta * cp.sin(angl)
+#             dtheta = cp.abs(cp.arctan2(ds, dc))
+#             spread = cp.exp((-dtheta**2) / (2 * (cp.pi / n_orientation)**2))
+
+#             sum_e = zero.copy()
+#             sum_o = zero.copy()
+#             sum_an = zero.copy()
+#             for s in range(n_scale):
+#                 wavelength = min_wavelength * mult**s
+#                 fo = 1.0 / wavelength
+#                 log_gabor = cp.exp((-(cp.log(radius / fo))**2) / (2 * cp.log(sigma_onf)**2))
+#                 log_gabor[radius < (fo / 2)] = 0
+
+#                 filter_ = log_gabor * spread
+#                 eo = cp.fft.ifft2(imagefft * filter_)
+
+#                 an = cp.abs(eo)
+#                 sum_an += an
+#                 sum_e += cp.real(eo)
+#                 sum_o += cp.imag(eo)
+
+#             # Compute phase congruency for this orientation
+#             energy = cp.sqrt(sum_e**2 + sum_o**2) + epsilon
+#             mean_an = sum_an / n_scale + epsilon
+#             term = (energy - k * mean_an) / (epsilon + mean_an)
+#             term = cp.maximum(term, 0)
+#             PC += term
+
+#         # Normalize phase congruency
+#         phase_congruency_gpu = PC / n_orientation
+#         phase_congruency_gpu = cp.clip(phase_congruency_gpu, 0, 1)
+
+#         # Transfer results back to CPU
+#         phase_congruency = cp.asnumpy(phase_congruency_gpu)
+
+#         # Clear GPU memory
+#         cp.get_default_memory_pool().free_all_blocks()
+
+#         return phase_congruency
+
+#     except Exception as e:
+#         print(f"Error in phase_congruency_analysis_gpu: {e}")
+#         return None
+
+def dual_tree_cwt_analysis(T, num_levels=4):
+    """
+    Perform Dual-Tree Complex Wavelet Transform Analysis on a 3D array of thermal data
+    to extract amplitude and phase maps.
+
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    num_levels : int, optional
+        Number of decomposition levels (default is 4).
+
+    Returns
+    -------
+    amplitude_maps : list of numpy.ndarray
+        List containing amplitude maps at each level and orientation.
+    phase_maps : list of numpy.ndarray
+        List containing phase maps at each level and orientation.
+
+    Example
+    -------
+    >>> amplitude_maps, phase_maps = dual_tree_cwt_analysis(T)
+    """
+    try:
+        import numpy as np
+        import pywt
+        from dtcwt import Transform2d
+
+        # Compute the mean image over time to reduce temporal noise
+        T_mean = np.mean(T, axis=2)
+
+        # Initialize the Dual-Tree Complex Wavelet Transform
+        transform = Transform2d()
+
+        # Perform the forward transform
+        coeffs = transform.forward(T_mean, nlevels=num_levels)
+
+        amplitude_maps = []
+        phase_maps = []
+
+        # Iterate over levels
+        for level in range(num_levels):
+            # Get the complex highpass coefficients for this level
+            highpass = coeffs.highpasses[level]
+            orientation_maps = []
+            orientation_phases = []
+
+            # Iterate over orientations (there are 6 orientations in DT-CWT)
+            for orientation in range(highpass.shape[2]):
+                # Extract the complex coefficients for this orientation
+                c = highpass[:, :, orientation]
+
+                # Compute amplitude and phase
+                amplitude = np.abs(c)
+                phase = np.angle(c)
+
+                amplitude_maps.append(amplitude)
+                phase_maps.append(phase)
+
+        return amplitude_maps, phase_maps
+
+    except Exception as e:
+        print(f"Error in dual_tree_cwt_analysis: {e}")
+        return None, None
+
+
+def structure_tensor_analysis(T, sigma=1.0):
+    """
+    Perform Structure Tensor Analysis on a 3D array of thermal data to extract coherence and orientation maps.
+    
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    sigma : float, optional
+        Standard deviation for Gaussian kernel used in smoothing (default is 1.0).
+    
+    Returns
+    -------
+    coherence : numpy.ndarray
+        Coherence map indicating the degree of local anisotropy.
+    orientation : numpy.ndarray
+        Orientation map indicating the local dominant orientation.
+    
+    Example
+    -------
+    >>> coherence, orientation = structure_tensor_analysis(T)
+    """
+    try:
+        import numpy as np
+        from scipy.ndimage import gaussian_filter, sobel
+
+        # Compute the mean image over time
+        T_mean = np.mean(T, axis=2)
+        T_mean = T_mean.astype(np.float32)
+
+        # Compute image gradients
+        Ix = sobel(T_mean, axis=1)
+        Iy = sobel(T_mean, axis=0)
+
+        # Compute products of derivatives at each pixel
+        Ixx = gaussian_filter(Ix * Ix, sigma)
+        Iyy = gaussian_filter(Iy * Iy, sigma)
+        Ixy = gaussian_filter(Ix * Iy, sigma)
+
+        # Compute the eigenvalues of the structure tensor
+        lambda1 = (Ixx + Iyy) / 2 + np.sqrt(((Ixx - Iyy) / 2)**2 + Ixy**2)
+        lambda2 = (Ixx + Iyy) / 2 - np.sqrt(((Ixx - Iyy) / 2)**2 + Ixy**2)
+
+        # Compute coherence and orientation
+        coherence = (lambda1 - lambda2) / (lambda1 + lambda2 + 1e-10)
+        orientation = 0.5 * np.arctan2(2 * Ixy, Ixx - Iyy)
+
+        return coherence, orientation
+
+    except Exception as e:
+        print(f"Error in structure_tensor_analysis: {e}")
+        return None, None
+
+
+def phase_stretch_transform(T, warp_strength=0.5, threshold_min=0.1, threshold_max=0.3):
+    """
+    Perform Phase Stretch Transform on a 3D array of thermal data to extract feature-enhanced maps.
+    
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    warp_strength : float, optional
+        Strength of the phase warp (default is 0.5).
+    threshold_min : float, optional
+        Minimum threshold for edge detection (default is 0.1).
+    threshold_max : float, optional
+        Maximum threshold for edge detection (default is 0.3).
+    
+    Returns
+    -------
+    pst_output : numpy.ndarray
+        Feature-enhanced map after applying the Phase Stretch Transform.
+    
+    Example
+    -------
+    >>> pst_output = phase_stretch_transform(T)
+    """
+    try:
+        import numpy as np
+        from scipy.fftpack import fft2, ifft2, fftshift
+
+        # Compute the mean image over time
+        T_mean = np.mean(T, axis=2)
+        T_mean = T_mean.astype(np.float32)
+
+        # Normalize the image
+        T_mean = (T_mean - T_mean.min()) / (T_mean.max() - T_mean.min())
+
+        # Perform Fourier Transform
+        F = fft2(T_mean)
+        F_shifted = fftshift(F)
+
+        # Create frequency coordinates
+        rows, cols = T_mean.shape
+        u = np.linspace(-0.5, 0.5, cols)
+        v = np.linspace(-0.5, 0.5, rows)
+        U, V = np.meshgrid(u, v)
+        radius = np.sqrt(U**2 + V**2)
+
+        # Apply the phase warp
+        phase_kernel = np.exp(-1j * warp_strength * (radius**2))
+        F_warped = F_shifted * phase_kernel
+
+        # Inverse Fourier Transform
+        F_iwarp = ifft2(fftshift(F_warped))
+        phase = np.angle(F_iwarp)
+
+        # Apply thresholding
+        pst_output = np.zeros_like(phase)
+        mask = (phase > threshold_min) & (phase < threshold_max)
+        pst_output[mask] = 1
+
+        return pst_output
+
+    except Exception as e:
+        print(f"Error in phase_stretch_transform: {e}")
+        return None
+
+
+def anisotropic_diffusion_filtering(T, num_iterations=10, kappa=50, gamma=0.1, option=1):
+    """
+    Perform Anisotropic Diffusion Filtering on a 3D array of thermal data to enhance edges.
+    
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    num_iterations : int, optional
+        Number of iterations to run the diffusion process (default is 10).
+    kappa : float, optional
+        Conduction coefficient (default is 50).
+    gamma : float, optional
+        Integration constant (default is 0.1).
+    option : int, optional
+        Conductivity function option: 1 or 2 (default is 1).
+    
+    Returns
+    -------
+    diffused_image : numpy.ndarray
+        Edge-enhanced image after anisotropic diffusion.
+    
+    Example
+    -------
+    >>> diffused_image = anisotropic_diffusion_filtering(T)
+    """
+    try:
+        import numpy as np
+
+        # Compute the mean image over time
+        img = np.mean(T, axis=2)
+        img = img.astype(np.float32)
+
+        img = img.copy()
+        for _ in range(num_iterations):
+            # Compute gradients
+            deltaN = np.roll(img, -1, axis=0) - img
+            deltaS = np.roll(img, 1, axis=0) - img
+            deltaE = np.roll(img, -1, axis=1) - img
+            deltaW = np.roll(img, 1, axis=1) - img
+
+            # Compute conduction
+            if option == 1:
+                cN = np.exp(-(deltaN / kappa)**2)
+                cS = np.exp(-(deltaS / kappa)**2)
+                cE = np.exp(-(deltaE / kappa)**2)
+                cW = np.exp(-(deltaW / kappa)**2)
+            elif option == 2:
+                cN = 1 / (1 + (deltaN / kappa)**2)
+                cS = 1 / (1 + (deltaS / kappa)**2)
+                cE = 1 / (1 + (deltaE / kappa)**2)
+                cW = 1 / (1 + (deltaW / kappa)**2)
+
+            # Update image
+            img += gamma * (cN * deltaN + cS * deltaS + cE * deltaE + cW * deltaW)
+
+        diffused_image = img
+        return diffused_image
+
+    except Exception as e:
+        print(f"Error in anisotropic_diffusion_filtering: {e}")
+        return None
+
+
+def entropy_based_imaging(T, window_size=9):
+    """
+    Perform Entropy-Based Imaging on a 3D array of thermal data to extract entropy maps.
+    
+    Parameters
+    ----------
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    window_size : int, optional
+        Size of the local window to compute entropy (default is 9).
+    
+    Returns
+    -------
+    entropy_map : numpy.ndarray
+        Local entropy map of the image.
+    
+    Example
+    -------
+    >>> entropy_map = entropy_based_imaging(T)
+    """
+    try:
+        import numpy as np
+        from skimage.util import view_as_windows
+        from scipy.stats import entropy
+
+        # Compute the mean image over time
+        img = np.mean(T, axis=2)
+        img = img.astype(np.float32)
+
+        # Normalize the image
+        img = (img - img.min()) / (img.max() - img.min())
+
+        # Pad the image to handle borders
+        pad_size = window_size // 2
+        img_padded = np.pad(img, pad_size, mode='reflect')
+
+        # Create an empty entropy map
+        entropy_map = np.zeros_like(img)
+
+        # Compute entropy for each local window
+        for i in range(entropy_map.shape[0]):
+            for j in range(entropy_map.shape[1]):
+                window = img_padded[i:i+window_size, j:j+window_size]
+                hist, _ = np.histogram(window, bins=256, range=(0, 1), density=True)
+                entropy_map[i, j] = entropy(hist + 1e-10)
+
+        return entropy_map
+
+    except Exception as e:
+        print(f"Error in entropy_based_imaging: {e}")
+        return None
+
+
+# def synchrosqueezed_wavelet_transform(T):
+#     """
+#     Perform Synchrosqueezed Wavelet Transform on a 3D array of thermal data to extract high-resolution phase maps.
+    
+#     Parameters
+#     ----------
+#     T : numpy.ndarray
+#         3D array of thermal data with dimensions (height, width, frames).
+    
+#     Returns
+#     -------
+#     sswt_amplitude : numpy.ndarray
+#         Amplitude map obtained from the Synchrosqueezed Wavelet Transform.
+#     sswt_phase : numpy.ndarray
+#         Phase map obtained from the Synchrosqueezed Wavelet Transform.
+    
+#     Example
+#     -------
+#     >>> sswt_amplitude, sswt_phase = synchrosqueezed_wavelet_transform(T)
+#     """
+#     try:
+#         import numpy as np
+#         import ssqueezepy as ssq
+
+#         # Compute the mean image over time
+#         T_mean = np.mean(T, axis=2)
+#         T_mean = T_mean.astype(np.float32)
+
+#         # Flatten the image to apply 1D transform
+#         signal = T_mean.flatten()
+
+#         # Perform Synchrosqueezed Wavelet Transform
+#         ssq_cwt, scales, _, _ = ssq.ssq_cwt(signal, wavelet='morlet')
+
+#         # Compute amplitude and phase
+#         amplitude = np.abs(ssq_cwt)
+#         phase = np.angle(ssq_cwt)
+
+#         # Reshape back to image dimensions
+#         num_scales = amplitude.shape[0]
+#         sswt_amplitude = amplitude.reshape(T_mean.shape + (num_scales,))
+#         sswt_phase = phase.reshape(T_mean.shape + (num_scales,))
+
+#         # For visualization, you might select a particular frequency slice
+#         freq_index = amplitude.shape[1] // 2  # Select the central frequency component
+#         amplitude_map = sswt_amplitude[:, :, freq_index]
+#         phase_map = sswt_phase[:, :, freq_index]
+
+#         return amplitude_map, phase_map
+
+#     except Exception as e:
+#         print(f"Error in synchrosqueezed_wavelet_transform: {e}")
+#         return None, None
+
+
+def dtw_clustering_defect_detection(T, n_clusters=4):
+    """
+    Use DTW-based clustering to detect defects.
+
+    Parameters:
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    n_clusters : int
+        Number of clusters to form.
+
+    Returns:
+    defect_map : numpy.ndarray
+        2D map indicating cluster assignments.
+    """
+    try:
+        from tslearn.clustering import TimeSeriesKMeans
+        from tslearn.metrics import cdist_dtw
+        height, width, frames = T.shape
+        T_reshaped = T.reshape(-1, frames)
+
+        # Perform clustering
+        km_dtw = TimeSeriesKMeans(n_clusters=n_clusters, metric="dtw", max_iter=10,n_jobs=-1)
+        cluster_labels = km_dtw.fit_predict(T_reshaped)
+
+        # Reshape cluster labels into image
+        defect_map = cluster_labels.reshape(height, width)
+        return defect_map
+    except Exception as e:
+        print(f"Error in dtw_clustering_defect_detection: {e}")
+        return None
+
+def frequency_ratio_imaging(T, fs, f_stim):
+    """
+    Compute frequency ratio imaging for defect detection.
+
+    Parameters:
+    T : numpy.ndarray
+        3D array of thermal data with dimensions (height, width, frames).
+    fs : float
+        Sampling frequency.
+    f_stim : float
+        Stimulation frequency.
+
+    Returns:
+    defect_map : numpy.ndarray
+        2D map highlighting potential defects.
+    """
+    try:
+        height, width, frames = T.shape
+        defect_map = np.zeros((height, width))
+
+        freqs = np.fft.fftfreq(frames, d=1/fs)
+        idx_fundamental = np.argmin(np.abs(freqs - f_stim))
+        idx_harmonic = np.argmin(np.abs(freqs - 2*f_stim))
+
+        for i in range(height):
+            for j in range(width):
+                # FFT of the signal
+                signal_fft = np.fft.fft(T[i, j, :])
+                # Amplitude at fundamental and harmonic frequencies
+                amp_fundamental = np.abs(signal_fft[idx_fundamental])
+                amp_harmonic = np.abs(signal_fft[idx_harmonic])
+                # Compute ratio
+                if amp_fundamental != 0:
+                    defect_map[i, j] = amp_harmonic / amp_fundamental
+                else:
+                    defect_map[i, j] = 0
+
+        # Normalize defect map
+        defect_map = (defect_map - np.min(defect_map)) / (np.max(defect_map) - np.min(defect_map))
+        return defect_map
+    except Exception as e:
+        print(f"Error in frequency_ratio_imaging: {e}")
+        return None

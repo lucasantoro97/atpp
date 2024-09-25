@@ -1,4 +1,7 @@
 atpp.egg-info
 build
 paper.ipynb
-__pycache__
+paper2.ipynb
+#all the files in the directory pycache
+__pycache__/
+atpp/__pycache__/
