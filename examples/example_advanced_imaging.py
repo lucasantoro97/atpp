@@ -1,5 +1,4 @@
 import atpp 
-from atpp.fnv_class import FlirVideo
 from atpp import lock_in_imaging as lim
 from atpp import advanced_imaging as aim
 import os
@@ -8,6 +7,7 @@ import tkinter as tk
 from tkinter import filedialog
 import matplotlib.pyplot as plt
 from atpp.plt_style import set_plt_style
+from atpp.data_io import load_flir_video
 
 
 
@@ -63,9 +63,9 @@ def select_folder_and_process():
             file_results_dir = os.path.join(results_dir, os.path.splitext(file_name)[0])
             os.makedirs(file_results_dir, exist_ok=True)
             # get the FlirVideo object
-            flir_video = FlirVideo(file_path)
+            T,time,fs=load_flir_video(file_path, memmap_flag=False)
             # process the file
-            process_video(flir_video, file_results_dir)
+            process_video(T,time,fs, file_results_dir)
     
     
     # folder_selected = 'path/to/folder' #change this to the path of the folder you want to process
@@ -83,13 +83,10 @@ def select_folder_and_process():
     #         # process the file
     #         process_video(flir_video, file_results_dir)
 
-def process_video(flir_video, results_dir):
+def process_video(T,time,fs, results_dir):
     #do stuff with the flir_video object
     
-    T=flir_video.temperature
-    fs=flir_video.framerate
-    print('fs:', fs)
-    time=flir_video.time
+
     # plt.plot(time, np.max(np.max(T, axis=0), axis=0))
     # plt.show()
     #desample

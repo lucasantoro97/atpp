@@ -30,9 +30,4 @@ setup(
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.6',
-    entry_points={
-        'console_scripts': [
-            'atpp=atpp.cli:main',  # Ensure 'cli.py' exists inside 'script' and has a 'main()' function
-        ],
-    },
 )
