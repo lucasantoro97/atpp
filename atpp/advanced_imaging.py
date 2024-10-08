@@ -1118,3 +1118,48 @@ def frequency_ratio_imaging(T, fs, f_stim):
     except Exception as e:
         logger.error(f"Error in frequency_ratio_imaging: {e}")
         return None
+
+def coherence_map(frame):
+    """
+    Compute the coherence map of a single frame.
+
+    Parameters:
+    frame : numpy.ndarray
+        2D array representing a single frame.
+
+    Returns:
+    coherence : numpy.ndarray
+        Coherence map of the input frame.
+    """
+    try:
+        logger.info("Starting coherence map computation")
+        height, width = frame.shape
+        phase_diff = np.zeros((height, width), dtype=np.float16)
+
+        for i in tqdm(range(1, height - 1), desc="Computing coherence map"):
+            for j in range(1, width - 1):
+                neighbors = [
+                    frame[i - 1, j],
+                    frame[i + 1, j],
+                    frame[i, j - 1],
+                    frame[i, j + 1],
+                    frame[i - 1, j - 1],
+                    frame[i - 1, j + 1],
+                    frame[i + 1, j - 1],
+                    frame[i + 1, j + 1]
+                ]
+                phase_diff[i, j] = np.std([frame[i, j] - neighbor for neighbor in neighbors])
+
+        # Avoid division by zero
+        max_diff = np.max(phase_diff)
+        if max_diff == 0:
+            coherence = np.ones((height, width), dtype=np.float16)
+        else:
+            coherence = 1 - (phase_diff / max_diff)
+
+        logger.info("Coherence map computation completed")
+        return coherence
+
+    except Exception as e:
+        logger.error(f"Error in coherence_map: {e}")
+        return None

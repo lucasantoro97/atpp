@@ -1,1 +1,41 @@
 2024-10-08 15:36:33,511 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-08 15:46:40,034 - INFO - utils.py:148 - Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2024-10-08 15:46:40,036 - INFO - utils.py:161 - NumExpr defaulting to 8 threads.
+2024-10-08 15:46:41,207 - INFO - advanced_imaging.py:26 - Using GPU-accelerated computing
+2024-10-08 15:46:41,219 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-08 15:48:17,523 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-08 15:48:29,373 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-08 15:48:36,402 - INFO - utils.py:148 - Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2024-10-08 15:48:36,403 - INFO - utils.py:161 - NumExpr defaulting to 8 threads.
+2024-10-08 15:48:37,431 - INFO - advanced_imaging.py:26 - Using GPU-accelerated computing
+2024-10-08 15:48:37,440 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-08 15:49:12,201 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-08 15:50:14,266 - INFO - utils.py:148 - Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2024-10-08 15:50:14,267 - INFO - utils.py:161 - NumExpr defaulting to 8 threads.
+2024-10-08 15:50:15,285 - INFO - advanced_imaging.py:26 - Using GPU-accelerated computing
+2024-10-08 15:50:15,295 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-08 15:52:47,788 - WARNING - graph.py:535 - The largest eigenvalue G.lmax is not available, we need to estimate it. Explicitly call G.estimate_lmax() or G.compute_fourier_basis() once beforehand to suppress the warning.
+2024-10-08 15:56:41,190 - INFO - advanced_imaging.py:82 - Starting phase coherence imaging on GPU
+2024-10-08 15:56:52,384 - INFO - advanced_imaging.py:155 - Phase coherence imaging on GPU completed
+2024-10-08 15:56:52,394 - INFO - advanced_imaging.py:1093 - Starting frequency ratio imaging
+2024-10-08 15:57:01,599 - INFO - advanced_imaging.py:1116 - Frequency ratio imaging completed
+2024-10-08 15:57:01,601 - INFO - advanced_imaging.py:719 - Starting monogenic signal analysis
+2024-10-08 15:57:02,113 - INFO - advanced_imaging.py:758 - Monogenic signal analysis completed
+2024-10-08 15:57:02,114 - INFO - advanced_imaging.py:440 - Starting modulated thermography
+2024-10-08 15:58:59,104 - INFO - advanced_imaging.py:482 - Modulated thermography completed
+2024-10-08 16:04:49,728 - INFO - utils.py:148 - Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2024-10-08 16:04:49,729 - INFO - utils.py:161 - NumExpr defaulting to 8 threads.
+2024-10-08 16:04:50,789 - INFO - advanced_imaging.py:26 - Using GPU-accelerated computing
+2024-10-08 16:04:50,796 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-08 16:06:54,411 - WARNING - graph.py:535 - The largest eigenvalue G.lmax is not available, we need to estimate it. Explicitly call G.estimate_lmax() or G.compute_fourier_basis() once beforehand to suppress the warning.
+2024-10-08 16:10:56,299 - INFO - advanced_imaging.py:82 - Starting phase coherence imaging on GPU
+2024-10-08 16:11:06,744 - INFO - advanced_imaging.py:155 - Phase coherence imaging on GPU completed
+2024-10-08 16:11:06,757 - INFO - advanced_imaging.py:1093 - Starting frequency ratio imaging
+2024-10-08 16:11:15,280 - INFO - advanced_imaging.py:1116 - Frequency ratio imaging completed
+2024-10-08 16:11:15,281 - INFO - advanced_imaging.py:719 - Starting monogenic signal analysis
+2024-10-08 16:11:15,751 - INFO - advanced_imaging.py:758 - Monogenic signal analysis completed
+2024-10-08 16:11:15,752 - INFO - advanced_imaging.py:440 - Starting modulated thermography
+2024-10-08 16:13:11,077 - INFO - advanced_imaging.py:482 - Modulated thermography completed
+2024-10-08 16:13:11,095 - INFO - advanced_imaging.py:1135 - Starting coherence map computation
+2024-10-08 16:13:15,510 - INFO - advanced_imaging.py:1160 - Coherence map computation completed
+2024-10-09 00:17:26,288 - INFO - data_io.py:53 - Importing data on RAM....

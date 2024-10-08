@@ -1,4 +1,6 @@
 from setuptools import setup, find_packages
+from setuptools.command.install import install
+import os
 
 # Read the contents of your README file
 with open('README.md', 'r', encoding='utf-8') as f:
@@ -6,11 +8,19 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 # Read the dependencies from requirements.txt
 def parse_requirements(filename):
-    """ Load requirements from a pip requirements file """
+    """Load requirements from a pip requirements file."""
     with open(filename, 'r') as f:
         return f.read().splitlines()
 
 requirements = parse_requirements('requirements.txt')
+
+# Define a custom install command
+class CustomInstallCommand(install):
+    def run(self):
+        install.run(self)
+        print("\nThank you for installing ATPP! 🎉")
+        print("To stay updated with the latest developments and news, please .")
+        print("visit: https://lucasantoro97.github.io/cv/\n")  # Replace with your mailing list URL
 
 setup(
     name='atpp',
@@ -30,4 +40,7 @@ setup(
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.6',
+    cmdclass={
+        'install': CustomInstallCommand,
+    },
 )
