@@ -7,7 +7,7 @@ Functions:
     - mask_data: Create a mask for the largest connected component in the amplitude data.
     - find_se_frames: Find the start and end frames based on a threshold after high-pass filtering.
     - desample: Resample the input data to a new sampling rate.
-    - detrend: Detrend the temperature data using polynomial fitting.
+    - detrend: Detrend the temperature data using polynomial fitting. 
 
 Example usage:
     >>> from lock_in_imaging import lock_in_amplifier, calculate_centroid, mask_data, find_se_frames, desample, detrend

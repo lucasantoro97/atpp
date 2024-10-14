@@ -3427,3 +3427,83 @@
 2024-10-14 15:09:39,578 - INFO - lock_in_imaging.py:303 - Computing polynomial coefficients
 2024-10-14 15:09:39,631 - INFO - lock_in_imaging.py:315 - Detrending completed
 2024-10-14 15:09:39,631 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 15:09:46,892 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 15:09:46,893 - INFO - lock_in_imaging.py:124 - Creating initial mask based on threshold
+2024-10-14 15:09:46,894 - INFO - lock_in_imaging.py:152 - Mask for the largest connected component created.
+2024-10-14 15:09:47,756 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 15:09:52,091 - INFO - lock_in_imaging.py:245 - Starting resampling of data
+2024-10-14 15:09:52,092 - INFO - lock_in_imaging.py:248 - New sampling frequency: 0.5 Hz
+2024-10-14 15:09:52,092 - INFO - lock_in_imaging.py:252 - Number of new frames: 71
+2024-10-14 15:09:54,412 - INFO - lock_in_imaging.py:260 - Resampling completed
+2024-10-14 15:09:54,415 - INFO - lock_in_imaging.py:172 - Starting to find start and end frames
+2024-10-14 15:09:54,420 - WARNING - lock_in_imaging.py:191 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 15:09:54,420 - INFO - lock_in_imaging.py:218 - End frame detected at index 66
+2024-10-14 15:09:54,420 - INFO - lock_in_imaging.py:220 - Start and end frame detection completed
+2024-10-14 15:09:54,420 - INFO - lock_in_imaging.py:280 - Starting detrending of temperature data
+2024-10-14 15:09:54,420 - INFO - lock_in_imaging.py:303 - Computing polynomial coefficients
+2024-10-14 15:09:54,492 - INFO - lock_in_imaging.py:315 - Detrending completed
+2024-10-14 15:09:54,492 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 15:10:01,722 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 15:10:01,723 - INFO - lock_in_imaging.py:124 - Creating initial mask based on threshold
+2024-10-14 15:10:01,723 - INFO - lock_in_imaging.py:152 - Mask for the largest connected component created.
+2024-10-14 15:10:02,436 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 15:10:06,478 - INFO - lock_in_imaging.py:245 - Starting resampling of data
+2024-10-14 15:10:06,478 - INFO - lock_in_imaging.py:248 - New sampling frequency: 0.5 Hz
+2024-10-14 15:10:06,479 - INFO - lock_in_imaging.py:252 - Number of new frames: 71
+2024-10-14 15:10:09,858 - INFO - lock_in_imaging.py:260 - Resampling completed
+2024-10-14 15:10:09,861 - INFO - lock_in_imaging.py:172 - Starting to find start and end frames
+2024-10-14 15:10:09,866 - WARNING - lock_in_imaging.py:191 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 15:10:09,867 - INFO - lock_in_imaging.py:218 - End frame detected at index 66
+2024-10-14 15:10:09,867 - INFO - lock_in_imaging.py:220 - Start and end frame detection completed
+2024-10-14 15:10:09,867 - INFO - lock_in_imaging.py:280 - Starting detrending of temperature data
+2024-10-14 15:10:09,867 - INFO - lock_in_imaging.py:303 - Computing polynomial coefficients
+2024-10-14 15:10:09,931 - INFO - lock_in_imaging.py:315 - Detrending completed
+2024-10-14 15:10:09,931 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 15:10:17,162 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 15:10:17,162 - INFO - lock_in_imaging.py:124 - Creating initial mask based on threshold
+2024-10-14 15:10:17,163 - INFO - lock_in_imaging.py:152 - Mask for the largest connected component created.
+2024-10-14 15:10:17,926 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 15:10:22,010 - INFO - lock_in_imaging.py:245 - Starting resampling of data
+2024-10-14 15:10:22,010 - INFO - lock_in_imaging.py:248 - New sampling frequency: 0.5 Hz
+2024-10-14 15:10:22,010 - INFO - lock_in_imaging.py:252 - Number of new frames: 71
+2024-10-14 15:10:24,888 - INFO - lock_in_imaging.py:260 - Resampling completed
+2024-10-14 15:10:24,890 - INFO - lock_in_imaging.py:172 - Starting to find start and end frames
+2024-10-14 15:10:24,896 - WARNING - lock_in_imaging.py:191 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 15:10:24,896 - INFO - lock_in_imaging.py:218 - End frame detected at index 67
+2024-10-14 15:10:24,896 - INFO - lock_in_imaging.py:220 - Start and end frame detection completed
+2024-10-14 15:10:24,896 - INFO - lock_in_imaging.py:280 - Starting detrending of temperature data
+2024-10-14 15:10:24,897 - INFO - lock_in_imaging.py:303 - Computing polynomial coefficients
+2024-10-14 15:10:24,978 - INFO - lock_in_imaging.py:315 - Detrending completed
+2024-10-14 15:10:24,978 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 15:10:31,980 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 15:10:31,981 - INFO - lock_in_imaging.py:124 - Creating initial mask based on threshold
+2024-10-14 15:10:31,981 - INFO - lock_in_imaging.py:152 - Mask for the largest connected component created.
+2024-10-14 15:10:32,575 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 15:10:36,899 - INFO - lock_in_imaging.py:245 - Starting resampling of data
+2024-10-14 15:10:36,900 - INFO - lock_in_imaging.py:248 - New sampling frequency: 0.5 Hz
+2024-10-14 15:10:36,900 - INFO - lock_in_imaging.py:252 - Number of new frames: 71
+2024-10-14 15:10:39,832 - INFO - lock_in_imaging.py:260 - Resampling completed
+2024-10-14 15:10:39,833 - INFO - lock_in_imaging.py:172 - Starting to find start and end frames
+2024-10-14 15:10:39,835 - WARNING - lock_in_imaging.py:191 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 15:10:39,835 - INFO - lock_in_imaging.py:218 - End frame detected at index 68
+2024-10-14 15:10:39,835 - INFO - lock_in_imaging.py:220 - Start and end frame detection completed
+2024-10-14 15:10:39,835 - INFO - lock_in_imaging.py:280 - Starting detrending of temperature data
+2024-10-14 15:10:39,836 - INFO - lock_in_imaging.py:303 - Computing polynomial coefficients
+2024-10-14 15:10:39,875 - INFO - lock_in_imaging.py:315 - Detrending completed
+2024-10-14 15:10:39,875 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 15:10:47,250 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 15:10:47,251 - INFO - lock_in_imaging.py:124 - Creating initial mask based on threshold
+2024-10-14 15:10:47,251 - INFO - lock_in_imaging.py:152 - Mask for the largest connected component created.
+2024-10-14 15:10:48,100 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 15:10:52,469 - INFO - lock_in_imaging.py:245 - Starting resampling of data
+2024-10-14 15:10:52,469 - INFO - lock_in_imaging.py:248 - New sampling frequency: 0.5 Hz
+2024-10-14 15:10:52,469 - INFO - lock_in_imaging.py:252 - Number of new frames: 71
+2024-10-14 15:10:54,898 - INFO - lock_in_imaging.py:260 - Resampling completed
+2024-10-14 15:10:54,901 - INFO - lock_in_imaging.py:172 - Starting to find start and end frames
+2024-10-14 15:10:54,906 - WARNING - lock_in_imaging.py:191 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 15:10:54,906 - INFO - lock_in_imaging.py:218 - End frame detected at index 68
+2024-10-14 15:10:54,906 - INFO - lock_in_imaging.py:220 - Start and end frame detection completed
+2024-10-14 15:10:54,906 - INFO - lock_in_imaging.py:280 - Starting detrending of temperature data
+2024-10-14 15:10:54,906 - INFO - lock_in_imaging.py:303 - Computing polynomial coefficients
+2024-10-14 15:10:54,980 - INFO - lock_in_imaging.py:315 - Detrending completed
+2024-10-14 15:10:54,981 - INFO - advanced_imaging.py:516 - Starting modulated thermography
