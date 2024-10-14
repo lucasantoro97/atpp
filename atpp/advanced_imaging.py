@@ -1,17 +1,17 @@
 
-    """This module provides advanced imaging techniques for thermal signal analysis, including phase coherence imaging, Hilbert transform analysis, thermal signal reconstruction, modulated thermography, principal component thermography, pulsed phase thermography, and wavelet transform analysis.
-    Functions:
-        clear_gpu_memory(): Clear GPU memory by deleting arrays and synchronizing.
-        get_max_chunk_frames(height, width, dtype, extra_arrays=2, overhead=0.9): Calculate the maximum number of frames that can be processed in a chunk based on available GPU memory.
-        get_max_chunk_pixels(frames, dtype, extra_arrays=2, overhead=0.9): Calculate the maximum number of pixels that can be processed in a chunk based on available GPU memory.
-        phase_coherence_imaging(T, fs, f_stim): Perform phase coherence imaging on the input signal.
-        hilbert_transform_analysis(T): Perform Hilbert transform analysis on the input signal.
-        thermal_signal_reconstruction(T, order=5): Reconstruct thermal signals using polynomial fitting.
-        modulated_thermography(T, fs, f_stim, harmonics=[2, 3]): Perform modulated thermography on the input signal.
-        principal_component_thermography(T, n_components=5): Perform principal component analysis on the input signal.
-        pulsed_phase_thermography(T, fs): Perform pulsed phase thermography on the input signal.
-        wavelet_transform_analysis(T, wavelet='db4', level=3): Perform wavelet transform analysis on the input signal.
-    """
+"""This module provides advanced imaging techniques for thermal signal analysis, including phase coherence imaging, Hilbert transform analysis, thermal signal reconstruction, modulated thermography, principal component thermography, pulsed phase thermography, and wavelet transform analysis.
+Functions:
+    clear_gpu_memory(): Clear GPU memory by deleting arrays and synchronizing.
+    get_max_chunk_frames(height, width, dtype, extra_arrays=2, overhead=0.9): Calculate the maximum number of frames that can be processed in a chunk based on available GPU memory.
+    get_max_chunk_pixels(frames, dtype, extra_arrays=2, overhead=0.9): Calculate the maximum number of pixels that can be processed in a chunk based on available GPU memory.
+    phase_coherence_imaging(T, fs, f_stim): Perform phase coherence imaging on the input signal.
+    hilbert_transform_analysis(T): Perform Hilbert transform analysis on the input signal.
+    thermal_signal_reconstruction(T, order=5): Reconstruct thermal signals using polynomial fitting.
+    modulated_thermography(T, fs, f_stim, harmonics=[2, 3]): Perform modulated thermography on the input signal.
+    principal_component_thermography(T, n_components=5): Perform principal component analysis on the input signal.
+    pulsed_phase_thermography(T, fs): Perform pulsed phase thermography on the input signal.
+    wavelet_transform_analysis(T, wavelet='db4', level=3): Perform wavelet transform analysis on the input signal.
+"""
 
 from atpp.logging_config import logger
 import tempfile
