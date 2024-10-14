@@ -3255,3 +3255,6 @@
 2024-10-14 15:07:02,765 - INFO - lock_in_imaging.py:124 - Creating initial mask based on threshold
 2024-10-14 15:07:02,766 - INFO - lock_in_imaging.py:152 - Mask for the largest connected component created.
 2024-10-14 15:07:03,367 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 15:07:07,125 - INFO - lock_in_imaging.py:245 - Starting resampling of data
+2024-10-14 15:07:07,125 - INFO - lock_in_imaging.py:248 - New sampling frequency: 0.5 Hz
+2024-10-14 15:07:07,125 - INFO - lock_in_imaging.py:252 - Number of new frames: 71
