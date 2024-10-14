@@ -13,7 +13,7 @@ Functions:
     wavelet_transform_analysis(T, wavelet='db4', level=3): Perform wavelet transform analysis on the input signal.
 """
 
-from atpp.logging_config import logger
+from logging_config import logger
 import tempfile
 from tqdm import tqdm
 

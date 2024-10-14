@@ -22,10 +22,9 @@ from scipy.ndimage import label
 from scipy.signal import butter, filtfilt
 from scipy.signal import find_peaks, savgol_filter, resample
 from tqdm import tqdm
-import logging
+from logging_config import logger
 
-# Configure logging
-logger = logging.getLogger(__name__)
+
 
 def lock_in_amplifier(temperature, time, frequency):
     """
