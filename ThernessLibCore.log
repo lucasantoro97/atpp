@@ -106,3 +106,34 @@
 2024-10-14 13:59:36,659 - INFO - advanced_imaging.py:516 - Starting modulated thermography
 2024-10-14 13:59:43,430 - INFO - advanced_imaging.py:558 - Modulated thermography completed
 2024-10-14 13:59:43,431 - INFO - lock_in_imaging.py:124 - Creating mask for the largest connected component
+2024-10-14 14:13:46,553 - INFO - utils.py:148 - Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2024-10-14 14:13:46,553 - INFO - utils.py:161 - NumExpr defaulting to 8 threads.
+2024-10-14 14:13:47,179 - INFO - advanced_imaging.py:39 - Using GPU-accelerated computing
+2024-10-14 14:14:07,101 - INFO - utils.py:148 - Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2024-10-14 14:14:07,101 - INFO - utils.py:161 - NumExpr defaulting to 8 threads.
+2024-10-14 14:14:07,810 - INFO - advanced_imaging.py:39 - Using GPU-accelerated computing
+2024-10-14 14:14:07,810 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 14:14:10,437 - INFO - lock_in_imaging.py:245 - Starting resampling of data
+2024-10-14 14:14:10,437 - INFO - lock_in_imaging.py:248 - New sampling frequency: 0.5 Hz
+2024-10-14 14:14:10,437 - INFO - lock_in_imaging.py:252 - Number of new frames: 71
+2024-10-14 14:14:13,092 - INFO - lock_in_imaging.py:260 - Resampling completed
+2024-10-14 14:14:13,094 - INFO - lock_in_imaging.py:172 - Starting to find start and end frames
+2024-10-14 14:14:13,096 - WARNING - lock_in_imaging.py:191 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 14:14:13,097 - INFO - lock_in_imaging.py:218 - End frame detected at index 67
+2024-10-14 14:14:13,097 - INFO - lock_in_imaging.py:220 - Start and end frame detection completed
+2024-10-14 14:14:13,097 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 14:14:19,428 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 14:14:19,429 - INFO - lock_in_imaging.py:124 - Creating initial mask based on threshold
+2024-10-14 14:14:19,429 - INFO - lock_in_imaging.py:131 - Initial mask created. Proceeding to label connected components.
+2024-10-14 14:14:19,429 - INFO - lock_in_imaging.py:148 - Largest connected component label: 1
+2024-10-14 14:14:19,429 - INFO - lock_in_imaging.py:152 - Mask for the largest connected component created.
+2024-10-14 14:14:19,800 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 14:14:22,475 - INFO - lock_in_imaging.py:245 - Starting resampling of data
+2024-10-14 14:14:22,476 - INFO - lock_in_imaging.py:248 - New sampling frequency: 0.5 Hz
+2024-10-14 14:14:22,476 - INFO - lock_in_imaging.py:252 - Number of new frames: 71
+2024-10-14 14:14:23,620 - INFO - lock_in_imaging.py:260 - Resampling completed
+2024-10-14 14:14:23,622 - INFO - lock_in_imaging.py:172 - Starting to find start and end frames
+2024-10-14 14:14:23,627 - WARNING - lock_in_imaging.py:191 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 14:14:23,627 - INFO - lock_in_imaging.py:218 - End frame detected at index 68
+2024-10-14 14:14:23,627 - INFO - lock_in_imaging.py:220 - Start and end frame detection completed
+2024-10-14 14:14:23,627 - INFO - advanced_imaging.py:516 - Starting modulated thermography

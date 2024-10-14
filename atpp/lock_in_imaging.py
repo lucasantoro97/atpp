@@ -113,26 +113,43 @@ def mask_data(amplitude, threshold):
     :type amplitude: numpy.ndarray
     :param threshold: Threshold value to create a binary mask.
     :type threshold: float
-    :return: Binary mask of the largest connected component.
-    :rtype: numpy.ndarray
+    :return: Binary mask of the largest connected component or None if mask is empty.
+    :rtype: numpy.ndarray or None
 
     Example:
         >>> amplitude = np.random.rand(100, 100)  # Example amplitude data
         >>> threshold = 0.5  # Example threshold
         >>> mask = mask_data(amplitude, threshold)
     """
-    logger.info("Creating mask for the largest connected component")
+    logger.info("Creating initial mask based on threshold")
     mask = amplitude > threshold
-    
+
+    if not mask.any():
+        logger.error("Mask is empty after applying threshold. Exiting function.")
+        return None
+
+    logger.info("Initial mask created. Proceeding to label connected components.")
+
     # Label connected components
     labeled_mask, num_features = label(mask)
 
+    if num_features == 0:
+        logger.error("No connected components found after labeling. Exiting function.")
+        return None
+
     # Find the largest connected component
-    largest_component = np.argmax(np.bincount(labeled_mask.flat)[1:]) + 1
+    counts = np.bincount(labeled_mask.flat)
+    if len(counts) <= 1:
+        logger.error("No connected components with positive labels found. Exiting function.")
+        return None
+
+    largest_component = np.argmax(counts[1:]) + 1  # Skip the background
+
+    logger.info(f"Largest connected component label: {largest_component}")
 
     # Create a mask for the largest component
     mask = labeled_mask == largest_component
-    logger.info("Mask created")
+    logger.info("Mask for the largest connected component created.")
     return mask
 
 def find_se_frames(T, fs):
