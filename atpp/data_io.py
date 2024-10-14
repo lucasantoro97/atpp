@@ -62,7 +62,9 @@ def load_flir_video(file_name, MEMMAP=None, emissivity=None, reflected_temp=None
         memmap_flag = MEMMAP
     
     # Print available RAM and file size ratio
-    logger.info(f"Available RAM: {available_RAM}, File size: {file_size}, Ratio: {available_RAM / file_size}")
+    available_RAM_MB = available_RAM / (1024 ** 2)
+    file_size_MB = file_size / (1024 ** 2)
+    logger.info(f"Available RAM: {available_RAM_MB:.2f} MB, File size: {file_size_MB:.2f} MB, Ratio: {available_RAM_MB / file_size_MB:.2f}")
 
     if memmap_flag:
         logger.info("Importing data on disk...")
