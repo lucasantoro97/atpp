@@ -1,4 +1,17 @@
-import this
+
+    """This module provides advanced imaging techniques for thermal signal analysis, including phase coherence imaging, Hilbert transform analysis, thermal signal reconstruction, modulated thermography, principal component thermography, pulsed phase thermography, and wavelet transform analysis.
+    Functions:
+        clear_gpu_memory(): Clear GPU memory by deleting arrays and synchronizing.
+        get_max_chunk_frames(height, width, dtype, extra_arrays=2, overhead=0.9): Calculate the maximum number of frames that can be processed in a chunk based on available GPU memory.
+        get_max_chunk_pixels(frames, dtype, extra_arrays=2, overhead=0.9): Calculate the maximum number of pixels that can be processed in a chunk based on available GPU memory.
+        phase_coherence_imaging(T, fs, f_stim): Perform phase coherence imaging on the input signal.
+        hilbert_transform_analysis(T): Perform Hilbert transform analysis on the input signal.
+        thermal_signal_reconstruction(T, order=5): Reconstruct thermal signals using polynomial fitting.
+        modulated_thermography(T, fs, f_stim, harmonics=[2, 3]): Perform modulated thermography on the input signal.
+        principal_component_thermography(T, n_components=5): Perform principal component analysis on the input signal.
+        pulsed_phase_thermography(T, fs): Perform pulsed phase thermography on the input signal.
+        wavelet_transform_analysis(T, wavelet='db4', level=3): Perform wavelet transform analysis on the input signal.
+    """
 
 from atpp.logging_config import logger
 import tempfile
@@ -35,8 +48,18 @@ def clear_gpu_memory():
     cp.cuda.Stream.null.synchronize()
 
 def get_max_chunk_frames(height, width, dtype, extra_arrays=2, overhead=0.9):
-    """
-    Calculate the maximum number of frames that can be processed at once without exceeding GPU memory.
+    """Calculate the maximum number of frames that can be processed in a single chunk based on available GPU memory.
+
+    :param height: The height of each frame.
+    :type height: int
+    :param width: The width of each frame.
+    :type width: int
+    :param dtype: The data type of the frame elements.
+    :type dtype: numpy.dtype or cupy.dtype
+    :param extra_arrays: The number of additional arrays to consider in memory calculation, defaults to 2.
+    :param overhead: The fraction of free memory to use, defaults to 0.9.
+    :return: The maximum number of frames that can be processed in a single chunk.
+    :rtype: int or None
     """
     if USE_GPU:
         free_mem, total_mem = cp.cuda.Device().mem_info
@@ -52,8 +75,18 @@ def get_max_chunk_frames(height, width, dtype, extra_arrays=2, overhead=0.9):
         return None  # Not applicable for CPU processing
 
 def get_max_chunk_pixels(frames, dtype, extra_arrays=2, overhead=0.9):
-    """
-    Calculate the maximum number of pixels that can be processed at once without exceeding GPU memory.
+    """Calculate the maximum number of pixels that can be processed in a single chunk based on available GPU memory.
+
+    :param frames: The number of frames.
+    :type frames: int
+    :param dtype: The data type of the frame elements.
+    :type dtype: numpy.dtype or cupy.dtype
+    :param extra_arrays: The number of additional arrays to consider in memory calculation, defaults to 2.
+    :param overhead: The fraction of free memory to use, defaults to 0.9.
+    :type extra_arrays: int, optional
+    :type overhead: float, optional
+    :return: The maximum number of pixels that can be processed in a single chunk.
+    :rtype: int or None
     """
     if USE_GPU:
         # Synchronize and clear the CuPy memory pool
@@ -74,8 +107,16 @@ def get_max_chunk_pixels(frames, dtype, extra_arrays=2, overhead=0.9):
         return None  # Not applicable for CPU processing
 
 def phase_coherence_imaging(T, fs, f_stim):
-    """
-    Perform phase coherence imaging on a 3D array of time-domain signals to extract amplitude, phase, and phase coherence maps.
+    """Perform phase coherence imaging on the input signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray or cupy.ndarray
+    :param fs: Sampling frequency of the input signal.
+    :type fs: float
+    :param f_stim: Stimulation frequency for phase coherence imaging.
+    :type f_stim: float
+    :return: Tuple containing amplitude, phase, and phase coherence arrays.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray, numpy.ndarray)
     """
     try:
         if USE_GPU:
@@ -219,92 +260,113 @@ def phase_coherence_imaging(T, fs, f_stim):
         logger.error(f"Error in phase_coherence_imaging: {e}")
         return None, None, None
 
-def synchronous_demodulation(T, fs, f_stim):
-    """
-    Perform synchronous demodulation on a 3D array of time-domain signals to extract amplitude and phase maps.
-    """
-    try:
-        if USE_GPU:
-            logger.info("Starting synchronous demodulation on GPU")
-            # Convert T to CuPy array for GPU processing
-            T_gpu = cp.asarray(T, dtype=cp.float16)
-            height, width, frames = T_gpu.shape
+# def synchronous_demodulation(T, fs, f_stim):
+#     """Perform synchronous demodulation on the input signal.
 
-            # Create time vector
-            t = cp.arange(frames) / fs
+#         T (numpy.ndarray or cupy.ndarray): The input signal array with dimensions (height, width, frames).
+#         fs (float): The sampling frequency of the input signal.
+#         f_stim (float): The stimulation frequency for demodulation.
 
-            # Reference signals for demodulation
-            ref_sin = cp.sin(2 * cp.pi * f_stim * t)
-            ref_cos = cp.cos(2 * cp.pi * f_stim * t)
+#         tuple: A tuple containing:
+#             - amplitude (numpy.ndarray): The amplitude of the demodulated signal.
+#             - phase (numpy.ndarray): The phase of the demodulated signal.
 
-            # Reshape reference signals for broadcasting
-            ref_sin = ref_sin[cp.newaxis, cp.newaxis, :]
-            ref_cos = ref_cos[cp.newaxis, cp.newaxis, :]
+#     Raises:
+#         Exception: If an error occurs during the demodulation process.
+    
+#     Returns:
+#         tuple: A tuple containing:
+#             - amplitude (numpy.ndarray): The amplitude of the demodulated signal.
+#             - phase (numpy.ndarray): The phase of the demodulated signal.
+#     """
+#     try:
+#         if USE_GPU:
+#             logger.info("Starting synchronous demodulation on GPU")
+#             if not isinstance(T, np.ndarray):
+#                 raise TypeError(f"Expected T to be a numpy.ndarray, but got {type(T)}")
+#             # Convert T to CuPy array for GPU processing
+#             T_gpu = cp.asarray(T, dtype=cp.float16)
+#             height, width, frames = T_gpu.shape
 
-            # Compute I and Q using vectorized operations on GPU
-            I_gpu = cp.sum(T_gpu * ref_cos, axis=2) / frames
-            Q_gpu = cp.sum(T_gpu * ref_sin, axis=2) / frames
+#             # Create time vector
+#             t = cp.arange(frames) / fs
 
-            # Transfer results back to CPU
-            I = I_gpu.get()
-            Q = Q_gpu.get()
+#             # Reference signals for demodulation
+#             ref_sin = cp.sin(2 * cp.pi * f_stim * t)
+#             ref_cos = cp.cos(2 * cp.pi * f_stim * t)
 
-            # Compute amplitude and phase
-            amplitude = np.sqrt(I**2 + Q**2)
-            phase = np.arctan2(Q, I)
+#             # Reshape reference signals for broadcasting
+#             ref_sin = ref_sin[cp.newaxis, cp.newaxis, :]
+#             ref_cos = ref_cos[cp.newaxis, cp.newaxis, :]
 
-            # Clear GPU memory
-            clear_gpu_memory()
-            logger.info("Synchronous demodulation on GPU completed")
+#             # Compute I and Q using vectorized operations on GPU
+#             I_gpu = cp.sum(T_gpu * ref_cos, axis=2) / frames
+#             Q_gpu = cp.sum(T_gpu * ref_sin, axis=2) / frames
 
-        else:
-            logger.info("Starting synchronous demodulation on CPU")
-            # CPU-based processing
-            height, width, frames = T.shape
+#             # Transfer results back to CPU
+#             I = I_gpu.get()
+#             Q = Q_gpu.get()
 
-            # Create time vector
-            t = np.arange(frames) / fs
+#             # Compute amplitude and phase
+#             amplitude = np.sqrt(I**2 + Q**2)
+#             phase = np.arctan2(Q, I)
 
-            # Reference signals for demodulation
-            ref_sin = np.sin(2 * np.pi * f_stim * t)
-            ref_cos = np.cos(2 * np.pi * f_stim * t)
+#             # Clear GPU memory
+#             clear_gpu_memory()
+#             logger.info("Synchronous demodulation on GPU completed")
 
-            # Reshape reference signals for broadcasting
-            ref_sin = ref_sin[np.newaxis, np.newaxis, :]
-            ref_cos = ref_cos[np.newaxis, np.newaxis, :]
+#         else:
+#             logger.info("Starting synchronous demodulation on CPU")
+#             # CPU-based processing
+#             height, width, frames = T.shape
 
-            # Initialize I and Q arrays
-            I = np.zeros((height, width), dtype=np.float16)
-            Q = np.zeros((height, width), dtype=np.float16)
+#             # Create time vector
+#             t = np.arange(frames) / fs
 
-            def calculate_iq(i):
-                """
-                Calculate I and Q for a specific row.
-                """
-                row_I = np.sum(T[i, :, :] * ref_cos, axis=1) / frames
-                row_Q = np.sum(T[i, :, :] * ref_sin, axis=1) / frames
-                return i, row_I, row_Q
+#             # Reference signals for demodulation
+#             ref_sin = np.sin(2 * np.pi * f_stim * t)
+#             ref_cos = np.cos(2 * np.pi * f_stim * t)
 
-            # Use ProcessPoolExecutor to parallelize row computations
-            with ProcessPoolExecutor(max_workers=NUM_PROCESSORS) as executor:
-                for i, row_I, row_Q in tqdm(executor.map(calculate_iq, range(height)), total=height, desc="Calculating I and Q"):
-                    I[i, :] = row_I
-                    Q[i, :] = row_Q
+#             # Reshape reference signals for broadcasting
+#             ref_sin = ref_sin[np.newaxis, np.newaxis, :]
+#             ref_cos = ref_cos[np.newaxis, np.newaxis, :]
 
-            # Compute amplitude and phase
-            amplitude = np.sqrt(I**2 + Q**2)
-            phase = np.arctan2(Q, I)
-            logger.info("Synchronous demodulation on CPU completed")
+#             # Initialize I and Q arrays
+#             I = np.zeros((height, width), dtype=np.float16)
+#             Q = np.zeros((height, width), dtype=np.float16)
 
-        return amplitude, phase
+#             def calculate_iq(i):
+#                 """
+#                 Calculate I and Q for a specific row.
+#                 """
+#                 row_I = np.sum(T[i, :, :] * ref_cos, axis=1) / frames
+#                 row_Q = np.sum(T[i, :, :] * ref_sin, axis=1) / frames
+#                 return i, row_I, row_Q
 
-    except Exception as e:
-        logger.error(f"Error in synchronous_demodulation: {e}")
-        return None, None
+#             # Use ProcessPoolExecutor to parallelize row computations
+#             with ProcessPoolExecutor(max_workers=NUM_PROCESSORS) as executor:
+#                 for i, row_I, row_Q in tqdm(executor.map(calculate_iq, range(height)), total=height, desc="Calculating I and Q"):
+#                     I[i, :] = row_I
+#                     Q[i, :] = row_Q
+
+#             # Compute amplitude and phase
+#             amplitude = np.sqrt(I**2 + Q**2)
+#             phase = np.arctan2(Q, I)
+#             logger.info("Synchronous demodulation on CPU completed")
+
+#         return amplitude, phase
+
+#     except Exception as e:
+#         logger.error(f"Error in synchronous_demodulation: {e}")
+#         return None, None
 
 def hilbert_transform_analysis(T):
-    """
-    Perform Hilbert transform analysis on a 3D array of time-domain signals to extract amplitude and phase maps.
+    """Perform Hilbert transform analysis on the input signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray or cupy.ndarray
+    :return: Tuple containing amplitude and phase arrays.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray)
     """
     try:
         if USE_GPU:
@@ -434,8 +496,22 @@ def thermal_signal_reconstruction(T, order=5):
     return T_reconstructed
 
 def modulated_thermography(T, fs, f_stim, harmonics=[2, 3]):
-    """
-    Perform modulated thermography analysis on a 3D array of time-domain signals.
+    """Perform modulated thermography on a given temperature dataset.
+
+    This function demodulates the temperature data at specified harmonic frequencies
+    to extract amplitude and phase information.
+
+    :param T: Temperature data array with dimensions (height, width, frames).
+    :type T: numpy.ndarray or cupy.ndarray
+    :param fs: Sampling frequency of the temperature data.
+    :type fs: float
+    :param f_stim: Stimulation frequency used during the thermography.
+    :type f_stim: float
+    :param harmonics: List of harmonic frequencies to demodulate, defaults to [2, 3].
+    :return: A tuple containing two dictionaries:
+             - amplitude: Dictionary with harmonic frequencies as keys and corresponding amplitude arrays as values.
+             - phase: Dictionary with harmonic frequencies as keys and corresponding phase arrays as values.
+    :rtype: Tuple[Dict[int, numpy.ndarray], Dict[int, numpy.ndarray]]
     """
     logger.info("Starting modulated thermography")
     # Convert T to cupy array if GPU is used
@@ -483,7 +559,15 @@ def modulated_thermography(T, fs, f_stim, harmonics=[2, 3]):
     return amplitude, phase
 
 def principal_component_thermography(T, n_components=5):
-    """Perform Principal Component Thermography (PCT) on a 3D array of time-domain signals."""
+    """Perform independent component thermography on the input signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param n_components: Number of independent components to extract, defaults to 5.
+    :type n_components: int, optional
+    :return: Reconstructed thermal signal array with independent components.
+    :rtype: numpy.ndarray
+    """
     logger.info("Starting principal component thermography")
     height, width, frames = T.shape
     data = T.reshape(-1, frames)
@@ -496,8 +580,15 @@ def principal_component_thermography(T, n_components=5):
     return pcs_images
 
 def pulsed_phase_thermography(T, fs):
-    """
-    Perform Pulsed Phase Thermography (PPT) on a 3D array of time-domain signals.
+    """Perform pulsed phase thermography on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray or cupy.ndarray
+    :param fs: Sampling frequency of the input signal.
+    :type fs: float
+    :raises Exception: If an error occurs during the processing.
+    :return: Tuple containing amplitude, phase, and frequency arrays.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray, numpy.ndarray)
     """
     try:
         if USE_GPU:
@@ -592,7 +683,17 @@ def pulsed_phase_thermography(T, fs):
         return None, None, None
 
 def wavelet_transform_analysis(T, wavelet='db4', level=3):
-    """Perform Wavelet Transform Analysis on a 3D array of thermal data."""
+    """Perform wavelet transform analysis on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param wavelet: Type of wavelet to use for the transform, defaults to 'db4'.
+    :type wavelet: str, optional
+    :param level: Decomposition level of the wavelet transform, defaults to 3.
+    :type level: int, optional
+    :return: List of wavelet coefficients for each pixel.
+    :rtype: list
+    """
     logger.info("Starting wavelet transform analysis")
     height, width, frames = T.shape
     coeffs = []
@@ -610,13 +711,20 @@ def wavelet_transform_analysis(T, wavelet='db4', level=3):
     return coeffs
 
 def visualize_comparison(T, fs, f_stim, time):
-    """
-    Visualize and compare the results of various imaging models.
+    """Visualize a comparison of different imaging techniques.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param fs: Sampling frequency of the input signal.
+    :type fs: float
+    :param f_stim: Stimulation frequency for the imaging techniques.
+    :type f_stim: float
+    :param time: Time vector corresponding to the frames.
+    :type time: numpy.ndarray
     """
     logger.info("Starting visualization of comparison")
     models = {
         "Phase Coherence Imaging": phase_coherence_imaging(T, fs, f_stim),
-        "Synchronous Demodulation": synchronous_demodulation(T, fs, f_stim),
         "Hilbert Transform": hilbert_transform_analysis(T),
         "Thermal Signal Reconstruction": thermal_signal_reconstruction(T),
         "Modulated Thermography": modulated_thermography(T, fs, f_stim),
@@ -682,8 +790,14 @@ def visualize_wavelet_coefficients(T, wavelet='db4', level=3):
     logger.info("Wavelet coefficients visualization completed")
 
 def independent_component_thermography(T, n_components=5):
-    """
-    Perform Independent Component Thermography (ICT) on a 3D array of time-domain signals.
+    """Perform independent component thermography on the input signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param n_components: Number of independent components to extract, defaults to 5.
+    :type n_components: int, optional
+    :return: Reconstructed thermal signal array with independent components.
+    :rtype: numpy.ndarray
     """
     try:
         logger.info("Starting independent component thermography")
@@ -712,8 +826,12 @@ def independent_component_thermography(T, n_components=5):
         return None
 
 def monogenic_signal_analysis(T):
-    """
-    Perform Monogenic Signal Analysis on a 3D array of thermal data to extract local amplitude and phase maps.
+    """Perform monogenic signal analysis on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :return: Tuple containing amplitude, phase, and orientation arrays.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray, numpy.ndarray)
     """
     try:
         logger.info("Starting monogenic signal analysis")
@@ -764,8 +882,28 @@ def monogenic_signal_analysis(T):
         return None, None, None
 
 def phase_congruency_analysis(T, n_scale=4, n_orientation=4, min_wavelength=6, mult=2.1, sigma_onf=0.55, k=2.0, cut_off=0.5, g=10):
-    """
-    Perform Phase Congruency Analysis on a 3D array of thermal data to extract phase congruency maps.
+    """Perform phase congruency analysis on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param n_scale: Number of wavelet scales, defaults to 4.
+    :type n_scale: int, optional
+    :param n_orientation: Number of filter orientations, defaults to 4.
+    :type n_orientation: int, optional
+    :param min_wavelength: Minimum wavelength for the wavelet transform, defaults to 6.
+    :type min_wavelength: int, optional
+    :param mult: Multiplicative factor between successive wavelengths, defaults to 2.1.
+    :type mult: float, optional
+    :param sigma_onf: Ratio of the standard deviation of the Gaussian describing the log Gabor filter's transfer function in the frequency domain to the filter center frequency, defaults to 0.55.
+    :type sigma_onf: float, optional
+    :param k: Noise compensation factor, defaults to 2.0.
+    :type k: float, optional
+    :param cut_off: Cut-off value for phase congruency, defaults to 0.5.
+    :type cut_off: float, optional
+    :param g: Gain factor, defaults to 10.
+    :type g: int, optional
+    :return: Phase congruency map.
+    :rtype: numpy.ndarray
     """
     try:
         logger.info("Starting phase congruency analysis")
@@ -851,9 +989,14 @@ def phase_congruency_analysis(T, n_scale=4, n_orientation=4, min_wavelength=6, m
         return None
 
 def dual_tree_cwt_analysis(T, num_levels=4):
-    """
-    Perform Dual-Tree Complex Wavelet Transform Analysis on a 3D array of thermal data
-    to extract amplitude and phase maps.
+    """Perform dual-tree complex wavelet transform analysis on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param num_levels: Number of levels for the wavelet transform, defaults to 4.
+    :type num_levels: int, optional
+    :return: Tuple containing lists of amplitude maps and phase maps for each level and orientation.
+    :rtype: Tuple[List[numpy.ndarray], List[numpy.ndarray]]
     """
     try:
         logger.info("Starting dual-tree complex wavelet transform analysis")
@@ -899,8 +1042,14 @@ def dual_tree_cwt_analysis(T, num_levels=4):
         return None, None
 
 def structure_tensor_analysis(T, sigma=1.0):
-    """
-    Perform Structure Tensor Analysis on a 3D array of thermal data to extract coherence and orientation maps.
+    """Perform structure tensor analysis on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param sigma: Standard deviation for Gaussian kernel used in smoothing, defaults to 1.0.
+    :type sigma: float, optional
+    :return: Tuple containing coherence and orientation arrays.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray)
     """
     try:
         logger.info("Starting structure tensor analysis")
@@ -936,8 +1085,18 @@ def structure_tensor_analysis(T, sigma=1.0):
         return None, None
 
 def phase_stretch_transform(T, warp_strength=0.5, threshold_min=0.1, threshold_max=0.3):
-    """
-    Perform Phase Stretch Transform on a 3D array of thermal data to extract feature-enhanced maps.
+    """Perform phase stretch transform on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param warp_strength: Strength of the phase warp, defaults to 0.5.
+    :type warp_strength: float, optional
+    :param threshold_min: Minimum threshold for phase values, defaults to 0.1.
+    :type threshold_min: float, optional
+    :param threshold_max: Maximum threshold for phase values, defaults to 0.3.
+    :type threshold_max: float, optional
+    :return: Binary image after applying phase stretch transform.
+    :rtype: numpy.ndarray
     """
     try:
         logger.info("Starting phase stretch transform")
@@ -983,8 +1142,20 @@ def phase_stretch_transform(T, warp_strength=0.5, threshold_min=0.1, threshold_m
         return None
 
 def anisotropic_diffusion_filtering(T, num_iterations=10, kappa=50, gamma=0.1, option=1):
-    """
-    Perform Anisotropic Diffusion Filtering on a 3D array of thermal data to enhance edges.
+    """Perform anisotropic diffusion filtering on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param num_iterations: Number of iterations for the diffusion process, defaults to 10.
+    :type num_iterations: int, optional
+    :param kappa: Conductance coefficient, defaults to 50.
+    :type kappa: int, optional
+    :param gamma: Integration constant (0 <= gamma <= 0.25 for stability), defaults to 0.1.
+    :type gamma: float, optional
+    :param option: Option for the diffusion equation (1 for exponential, 2 for reciprocal), defaults to 1.
+    :type option: int, optional
+    :return: Diffused thermal signal array.
+    :rtype: numpy.ndarray
     """
     try:
         logger.info("Starting anisotropic diffusion filtering")
@@ -1026,8 +1197,14 @@ def anisotropic_diffusion_filtering(T, num_iterations=10, kappa=50, gamma=0.1, o
         return None
 
 def entropy_based_imaging(T, window_size=9):
-    """
-    Perform Entropy-Based Imaging on a 3D array of thermal data to extract entropy maps.
+    """Perform entropy-based imaging on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param window_size: Size of the window used for entropy calculation, defaults to 9.
+    :type window_size: int, optional
+    :return: Entropy map of the input thermal signal.
+    :rtype: numpy.ndarray
     """
     try:
         logger.info("Starting entropy-based imaging")
@@ -1063,8 +1240,14 @@ def entropy_based_imaging(T, window_size=9):
         return None
 
 def dtw_clustering_defect_detection(T, n_clusters=4):
-    """
-    Use DTW-based clustering to detect defects.
+    """Perform DTW clustering for defect detection on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param n_clusters: Number of clusters for the DTW clustering, defaults to 4.
+    :type n_clusters: int, optional
+    :return: Defect map indicating cluster labels for each pixel.
+    :rtype: numpy.ndarray
     """
     try:
         logger.info("Starting DTW clustering for defect detection")
@@ -1086,8 +1269,16 @@ def dtw_clustering_defect_detection(T, n_clusters=4):
         return None
 
 def frequency_ratio_imaging(T, fs, f_stim):
-    """
-    Compute frequency ratio imaging for defect detection.
+    """Perform frequency ratio imaging on the input thermal signal.
+
+    :param T: Input thermal signal array with dimensions (height, width, frames).
+    :type T: numpy.ndarray
+    :param fs: Sampling frequency of the input signal.
+    :type fs: float
+    :param f_stim: Stimulation frequency for the imaging techniques.
+    :type f_stim: float
+    :return: Defect map indicating the ratio of harmonic to fundamental frequency amplitude for each pixel.
+    :rtype: numpy.ndarray
     """
     try:
         logger.info("Starting frequency ratio imaging")
@@ -1120,16 +1311,12 @@ def frequency_ratio_imaging(T, fs, f_stim):
         return None
 
 def coherence_map(frame):
-    """
-    Compute the coherence map of a single frame.
+    """Compute the coherence map of the input frame.
 
-    Parameters:
-    frame : numpy.ndarray
-        2D array representing a single frame.
-
-    Returns:
-    coherence : numpy.ndarray
-        Coherence map of the input frame.
+    :param frame: Input 2D array representing a single frame.
+    :type frame: numpy.ndarray
+    :return: Coherence map of the input frame.
+    :rtype: numpy.ndarray
     """
     try:
         logger.info("Starting coherence map computation")
@@ -1163,3 +1350,4 @@ def coherence_map(frame):
     except Exception as e:
         logger.error(f"Error in coherence_map: {e}")
         return None
+

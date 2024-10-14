@@ -5,3 +5,4 @@ paper2.ipynb
 #all the files in the directory pycache
 __pycache__/
 atpp/__pycache__/
+rsw.py
