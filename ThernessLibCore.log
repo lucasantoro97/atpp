@@ -3635,3 +3635,23 @@
 2024-10-14 15:27:34,649 - INFO - lock_in_imaging.py:151 - Mask for the largest connected component created.
 2024-10-14 15:27:35,268 - INFO - data_io.py:65 - Available RAM: 33383505920, File size: 391296565, Ratio: 85.31510088773716
 2024-10-14 15:27:35,268 - INFO - data_io.py:70 - Importing data on RAM....
+2024-10-14 15:27:38,237 - INFO - lock_in_imaging.py:244 - Starting resampling of data
+2024-10-14 15:27:38,237 - INFO - lock_in_imaging.py:247 - New sampling frequency: 1.0 Hz
+2024-10-14 15:27:38,237 - INFO - lock_in_imaging.py:251 - Number of new frames: 143
+2024-10-14 15:27:39,484 - INFO - lock_in_imaging.py:259 - Resampling completed
+2024-10-14 15:27:39,485 - INFO - lock_in_imaging.py:171 - Starting to find start and end frames
+2024-10-14 15:27:39,494 - WARNING - lock_in_imaging.py:190 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 15:27:39,494 - INFO - lock_in_imaging.py:217 - End frame detected at index 135
+2024-10-14 15:27:39,494 - INFO - lock_in_imaging.py:219 - Start and end frame detection completed
+2024-10-14 15:27:39,494 - INFO - lock_in_imaging.py:279 - Starting detrending of temperature data
+2024-10-14 15:27:39,494 - INFO - lock_in_imaging.py:302 - Computing polynomial coefficients
+2024-10-14 15:27:39,729 - INFO - lock_in_imaging.py:314 - Detrending completed
+2024-10-14 15:27:39,731 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 15:27:46,597 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 15:27:46,598 - INFO - lock_in_imaging.py:123 - Creating initial mask based on threshold
+2024-10-14 15:27:46,599 - INFO - lock_in_imaging.py:151 - Mask for the largest connected component created.
+2024-10-14 15:27:47,084 - INFO - data_io.py:65 - Available RAM: 33383505920, File size: 390580789, Ratio: 85.47144882745373
+2024-10-14 15:27:47,084 - INFO - data_io.py:70 - Importing data on RAM....
+2024-10-14 15:27:50,310 - INFO - lock_in_imaging.py:244 - Starting resampling of data
+2024-10-14 15:27:50,311 - INFO - lock_in_imaging.py:247 - New sampling frequency: 1.0 Hz
+2024-10-14 15:27:50,311 - INFO - lock_in_imaging.py:251 - Number of new frames: 143
