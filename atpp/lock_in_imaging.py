@@ -22,7 +22,7 @@ from scipy.ndimage import label
 from scipy.signal import butter, filtfilt
 from scipy.signal import find_peaks, savgol_filter, resample
 from tqdm import tqdm
-from logging_config import logger
+from atpp.logging_config import logger
 
 
 

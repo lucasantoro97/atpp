@@ -36,7 +36,7 @@ def process_frame(args):
     temperature_i = np.array(worker_imager.final, copy=False).reshape((height, width))
     return i, time_i, temperature_i
 
-def load_flir_video(file_name, memmap_flag=False, emissivity=None, reflected_temp=None):
+def load_flir_video(file_name, MEMMAP=None, emissivity=None, reflected_temp=None):
     """
     Loads data from the FLIR video file and calculates the temperature, time, and framerate.
 
@@ -47,6 +47,23 @@ def load_flir_video(file_name, memmap_flag=False, emissivity=None, reflected_tem
     :param reflected_temp: The `reflected_temp` parameter is a float that represents the reflected temperature to be set.
     :return: Tuple containing the temperature array, time array, and framerate.
     """
+    
+    #Get file size
+    file_size = os.path.getsize(file_name)
+    #Get available RAM
+    available_RAM = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+
+    if MEMMAP is None:
+        if available_RAM/10 > file_size:
+            memmap_flag = False
+        else:
+            memmap_flag = True
+    else:
+        memmap_flag = MEMMAP
+    
+    # Print available RAM and file size ratio
+    logger.info(f"Available RAM: {available_RAM}, File size: {file_size}, Ratio: {available_RAM / file_size}")
+
     if memmap_flag:
         logger.info("Importing data on disk...")
     else:
