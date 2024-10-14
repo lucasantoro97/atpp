@@ -39,3 +39,29 @@
 2024-10-08 16:13:11,095 - INFO - advanced_imaging.py:1135 - Starting coherence map computation
 2024-10-08 16:13:15,510 - INFO - advanced_imaging.py:1160 - Coherence map computation completed
 2024-10-09 00:17:26,288 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 13:58:40,349 - INFO - utils.py:148 - Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2024-10-14 13:58:40,349 - INFO - utils.py:161 - NumExpr defaulting to 8 threads.
+2024-10-14 13:58:41,010 - INFO - advanced_imaging.py:39 - Using GPU-accelerated computing
+2024-10-14 13:58:41,010 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 13:58:43,795 - INFO - lock_in_imaging.py:228 - Starting resampling of data
+2024-10-14 13:58:43,796 - INFO - lock_in_imaging.py:231 - New sampling frequency: 0.5 Hz
+2024-10-14 13:58:43,796 - INFO - lock_in_imaging.py:235 - Number of new frames: 71
+2024-10-14 13:58:46,587 - INFO - lock_in_imaging.py:243 - Resampling completed
+2024-10-14 13:58:46,588 - INFO - lock_in_imaging.py:155 - Starting to find start and end frames
+2024-10-14 13:58:46,591 - WARNING - lock_in_imaging.py:174 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 13:58:46,595 - INFO - lock_in_imaging.py:201 - End frame detected at index 67
+2024-10-14 13:58:46,595 - INFO - lock_in_imaging.py:203 - Start and end frame detection completed
+2024-10-14 13:58:46,595 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 13:58:53,058 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 13:58:53,058 - INFO - lock_in_imaging.py:124 - Creating mask for the largest connected component
+2024-10-14 13:58:53,059 - INFO - lock_in_imaging.py:135 - Mask created
+2024-10-14 13:58:53,444 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 13:58:56,019 - INFO - lock_in_imaging.py:228 - Starting resampling of data
+2024-10-14 13:58:56,019 - INFO - lock_in_imaging.py:231 - New sampling frequency: 0.5 Hz
+2024-10-14 13:58:56,020 - INFO - lock_in_imaging.py:235 - Number of new frames: 71
+2024-10-14 13:58:57,350 - INFO - lock_in_imaging.py:243 - Resampling completed
+2024-10-14 13:58:57,352 - INFO - lock_in_imaging.py:155 - Starting to find start and end frames
+2024-10-14 13:58:57,356 - WARNING - lock_in_imaging.py:174 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 13:58:57,356 - INFO - lock_in_imaging.py:201 - End frame detected at index 68
+2024-10-14 13:58:57,356 - INFO - lock_in_imaging.py:203 - Start and end frame detection completed
+2024-10-14 13:58:57,356 - INFO - advanced_imaging.py:516 - Starting modulated thermography
