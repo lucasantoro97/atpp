@@ -128,7 +128,7 @@ def mask_data(amplitude, threshold):
         logger.error("Mask is empty after applying threshold. Exiting function.")
         return None
 
-    logger.info("Initial mask created. Proceeding to label connected components.")
+    logger.debug("Initial mask created. Proceeding to label connected components.")
 
     # Label connected components
     labeled_mask, num_features = label(mask)
@@ -145,7 +145,7 @@ def mask_data(amplitude, threshold):
 
     largest_component = np.argmax(counts[1:]) + 1  # Skip the background
 
-    logger.info(f"Largest connected component label: {largest_component}")
+    logger.debug(f"Largest connected component label: {largest_component}")
 
     # Create a mask for the largest component
     mask = labeled_mask == largest_component
