@@ -65,3 +65,44 @@
 2024-10-14 13:58:57,356 - INFO - lock_in_imaging.py:201 - End frame detected at index 68
 2024-10-14 13:58:57,356 - INFO - lock_in_imaging.py:203 - Start and end frame detection completed
 2024-10-14 13:58:57,356 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 13:59:04,540 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 13:59:04,541 - INFO - lock_in_imaging.py:124 - Creating mask for the largest connected component
+2024-10-14 13:59:04,542 - INFO - lock_in_imaging.py:135 - Mask created
+2024-10-14 13:59:04,818 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 13:59:07,658 - INFO - lock_in_imaging.py:228 - Starting resampling of data
+2024-10-14 13:59:07,658 - INFO - lock_in_imaging.py:231 - New sampling frequency: 0.5 Hz
+2024-10-14 13:59:07,658 - INFO - lock_in_imaging.py:235 - Number of new frames: 71
+2024-10-14 13:59:10,892 - INFO - lock_in_imaging.py:243 - Resampling completed
+2024-10-14 13:59:10,895 - INFO - lock_in_imaging.py:155 - Starting to find start and end frames
+2024-10-14 13:59:10,900 - WARNING - lock_in_imaging.py:174 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 13:59:10,901 - INFO - lock_in_imaging.py:201 - End frame detected at index 68
+2024-10-14 13:59:10,901 - INFO - lock_in_imaging.py:203 - Start and end frame detection completed
+2024-10-14 13:59:10,901 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 13:59:17,687 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 13:59:17,688 - INFO - lock_in_imaging.py:124 - Creating mask for the largest connected component
+2024-10-14 13:59:17,689 - INFO - lock_in_imaging.py:135 - Mask created
+2024-10-14 13:59:17,935 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 13:59:21,201 - INFO - lock_in_imaging.py:228 - Starting resampling of data
+2024-10-14 13:59:21,201 - INFO - lock_in_imaging.py:231 - New sampling frequency: 0.5 Hz
+2024-10-14 13:59:21,201 - INFO - lock_in_imaging.py:235 - Number of new frames: 71
+2024-10-14 13:59:23,818 - INFO - lock_in_imaging.py:243 - Resampling completed
+2024-10-14 13:59:23,820 - INFO - lock_in_imaging.py:155 - Starting to find start and end frames
+2024-10-14 13:59:23,824 - WARNING - lock_in_imaging.py:174 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 13:59:23,824 - INFO - lock_in_imaging.py:201 - End frame detected at index 68
+2024-10-14 13:59:23,824 - INFO - lock_in_imaging.py:203 - Start and end frame detection completed
+2024-10-14 13:59:23,824 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 13:59:30,886 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 13:59:30,887 - INFO - lock_in_imaging.py:124 - Creating mask for the largest connected component
+2024-10-14 13:59:30,887 - INFO - lock_in_imaging.py:135 - Mask created
+2024-10-14 13:59:31,154 - INFO - data_io.py:53 - Importing data on RAM....
+2024-10-14 13:59:34,101 - INFO - lock_in_imaging.py:228 - Starting resampling of data
+2024-10-14 13:59:34,102 - INFO - lock_in_imaging.py:231 - New sampling frequency: 0.5 Hz
+2024-10-14 13:59:34,102 - INFO - lock_in_imaging.py:235 - Number of new frames: 71
+2024-10-14 13:59:36,655 - INFO - lock_in_imaging.py:243 - Resampling completed
+2024-10-14 13:59:36,656 - INFO - lock_in_imaging.py:155 - Starting to find start and end frames
+2024-10-14 13:59:36,659 - WARNING - lock_in_imaging.py:174 - Could not detect the start frame based on the derivative threshold.
+2024-10-14 13:59:36,659 - INFO - lock_in_imaging.py:201 - End frame detected at index 70
+2024-10-14 13:59:36,659 - INFO - lock_in_imaging.py:203 - Start and end frame detection completed
+2024-10-14 13:59:36,659 - INFO - advanced_imaging.py:516 - Starting modulated thermography
+2024-10-14 13:59:43,430 - INFO - advanced_imaging.py:558 - Modulated thermography completed
+2024-10-14 13:59:43,431 - INFO - lock_in_imaging.py:124 - Creating mask for the largest connected component
