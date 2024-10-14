@@ -3,7 +3,6 @@ numpy>=1.18.0
 scipy>=1.4.0
 scikit-learn>=0.22.0
 scikit-image>=0.16.2
-#scipy signal
 tslearn>=0.4.1
 dtcwt>=0.12.0
 # fnv # This is a custom package to be donwloaded from the repository FLIR
