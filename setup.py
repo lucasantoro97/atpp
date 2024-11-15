@@ -18,13 +18,13 @@ requirements = parse_requirements('requirements.txt')
 class CustomInstallCommand(install):
     def run(self):
         install.run(self)
-        print("\nThank you for installing ATPP! 🎉")
-        print("To stay updated with the latest developments and news, please .")
-        print("visit: https://lucasantoro97.github.io/cv/\n")  # Replace with your mailing list URL
+        print("\nThank you for installing ATPP!")
+        print("To stay updated with the latest developments and news, please visit:")
+        print("https://lucasantoro97.github.io/cv/\n")
 
 setup(
     name='atpp',
-    version='0.1.0',
+    version='0.1.1',
     description='Active Thermography Test Post-Processing',
     long_description=long_description,
     long_description_content_type='text/markdown',

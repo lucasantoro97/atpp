@@ -16,11 +16,8 @@ Functions:
 from atpp.logging_config import logger 
 import tempfile
 from tqdm import tqdm
-
+import gc
 import numpy as np
-from scipy.signal import hilbert
-from sklearn.decomposition import PCA
-import pywt
 from concurrent.futures import ProcessPoolExecutor
 import matplotlib.pyplot as plt
 import os
@@ -369,6 +366,7 @@ def hilbert_transform_analysis(T):
     :rtype: tuple(numpy.ndarray, numpy.ndarray)
     """
     try:
+        from scipy.signal import hilbert
         if USE_GPU:
             logger.info("Starting Hilbert transform analysis on GPU")
             height, width, frames = T.shape
@@ -568,6 +566,7 @@ def principal_component_thermography(T, n_components=5):
     :return: Reconstructed thermal signal array with independent components.
     :rtype: numpy.ndarray
     """
+    from sklearn.decomposition import PCA
     logger.info("Starting principal component thermography")
     height, width, frames = T.shape
     data = T.reshape(-1, frames)
@@ -576,6 +575,7 @@ def principal_component_thermography(T, n_components=5):
     pca = PCA(n_components=n_components)
     principal_components = pca.fit_transform(data_centered)
     pcs_images = [pc.reshape(height, width) for pc in principal_components.T]
+    gc.collect()
     logger.info("Principal component thermography completed")
     return pcs_images
 
@@ -599,7 +599,7 @@ def pulsed_phase_thermography(T, fs):
             logger.info(f"Processing on GPU with shape: {T_gpu.shape}")
 
             # Initialize list to collect FFT batches
-            fft_batches = []
+            fft_data = []
 
             chunks = get_max_chunk_frames(height, width, cp.complex128, extra_arrays=7, overhead=0.9)
 
@@ -612,18 +612,17 @@ def pulsed_phase_thermography(T, fs):
                 batch_fft = cp.fft.fft(T_gpu[:, :, start:end], axis=2)
 
                 # Append the FFT result to the list
-                fft_batches.append(batch_fft)
+                fft_data.append(batch_fft.get())
+                
+                del batch_fft  
 
                 # Optionally synchronize and free memory after each batch
                 cp.cuda.Stream.null.synchronize()
                 cp.get_default_memory_pool().free_all_blocks()
 
-            # Concatenate all FFT batches along the frame axis
-            fft_data = cp.concatenate(fft_batches, axis=2)
+
             logger.info(f"Concatenated FFT data shape: {fft_data.shape}")
 
-            # Clear the list to free memory
-            del fft_batches
             cp.get_default_memory_pool().free_all_blocks()
 
             # Get the frequencies corresponding to the FFT result
@@ -694,6 +693,7 @@ def wavelet_transform_analysis(T, wavelet='db4', level=3):
     :return: List of wavelet coefficients for each pixel.
     :rtype: list
     """
+    import pywt
     logger.info("Starting wavelet transform analysis")
     height, width, frames = T.shape
     coeffs = []
@@ -750,6 +750,7 @@ def visualize_wavelet_coefficients(T, wavelet='db4', level=3):
     STILL to be refactored
     Visualizes wavelet coefficients of a 3D thermal data array using scalograms.
     """
+    import pywt
     logger.info("Starting visualization of wavelet coefficients")
     # Get dimensions
     height, width, frames = T.shape
@@ -789,41 +790,61 @@ def visualize_wavelet_coefficients(T, wavelet='db4', level=3):
     plt.show()
     logger.info("Wavelet coefficients visualization completed")
 
-def independent_component_thermography(T, n_components=5):
-    """Perform independent component thermography on the input signal.
+def independent_component_thermography(T, n_components=5, pca_components=50):
+    """Perform independent component thermography on the input signal with PCA pre-reduction.
 
     :param T: Input thermal signal array with dimensions (height, width, frames).
     :type T: numpy.ndarray
     :param n_components: Number of independent components to extract, defaults to 5.
     :type n_components: int, optional
+    :param pca_components: Number of PCA components to retain, defaults to 50.
+    :type pca_components: int, optional
     :return: Reconstructed thermal signal array with independent components.
     :rtype: numpy.ndarray
     """
     try:
+        from sklearn.decomposition import PCA, FastICA
         logger.info("Starting independent component thermography")
-        # Get dimensions
         height, width, frames = T.shape
+        gc.collect()
 
-        # Reshape T to (pixels, frames)
-        data = T.reshape(-1, frames)
-        data_mean = np.mean(data, axis=0)
-        data_centered = data - data_mean
+        # Reshape data to (frames, pixels)
+        data = T.reshape(-1, frames).astype(np.float32).T  # Shape: (frames, pixels)
+        logger.info(f"Data reshaped to {data.shape} and converted to float32")
 
-        # Perform ICA
-        from sklearn.decomposition import FastICA        
-        from skimage.transform import resize
+        del T
+        gc.collect()
 
-        ica = FastICA(n_components=n_components, random_state=0)
-        independent_components = ica.fit_transform(data_centered.T).T
-        # Reconstruct images with inverse transform
-        reconstructed_data = ica.inverse_transform(independent_components.T).T
+        # Perform PCA to reduce dimensionality
+        pca = PCA(n_components=pca_components, random_state=0, svd_solver='randomized')
+        data_pca = pca.fit_transform(data)  # Shape: (frames, pca_components)
+        logger.info(f"PCA completed with {pca_components} components")
+        del data
+        gc.collect()
 
-        logger.info("Independent component thermography completed")
-        return reconstructed_data.reshape(height, width, frames)
+        # Perform ICA on PCA-reduced data
+        ica = FastICA(n_components=n_components, random_state=0, max_iter=200, tol=0.0001)
+        independent_components = ica.fit_transform(data_pca)  # Shape: (frames, n_components)
+        logger.info("ICA completed")
+        del data_pca
+        gc.collect()
 
+        # Reconstruct from ICA
+        reconstructed_pca = ica.inverse_transform(independent_components)  # Shape: (frames, pca_components)
+        reconstructed_data = pca.inverse_transform(reconstructed_pca)  # Shape: (frames, pixels)
+        logger.info("Reconstruction completed")
+
+        # Reshape reconstructed_data to original shape (height, width, frames)
+        reconstructed_data = reconstructed_data.T.reshape(height, width, frames)
+        return reconstructed_data
+
+    except MemoryError:
+        logger.error("MemoryError: The system ran out of memory during independent component thermography.")
+        return None
     except Exception as e:
         logger.error(f"Error in independent_component_thermography: {e}")
         return None
+
 
 def monogenic_signal_analysis(T):
     """Perform monogenic signal analysis on the input thermal signal.
@@ -1239,31 +1260,61 @@ def entropy_based_imaging(T, window_size=9):
         logger.error(f"Error in entropy_based_imaging: {e}")
         return None
 
-def dtw_clustering_defect_detection(T, n_clusters=4):
-    """Perform DTW clustering for defect detection on the input thermal signal.
+def dtw_clustering_defect_detection(T, n_clusters=4, downsample_factor=1, max_iter=10, n_jobs=-1):
+    """
+    Perform DTW clustering for defect detection on the input thermal signal.
 
     :param T: Input thermal signal array with dimensions (height, width, frames).
     :type T: numpy.ndarray
     :param n_clusters: Number of clusters for the DTW clustering, defaults to 4.
     :type n_clusters: int, optional
+    :param downsample_factor: Factor by which to downsample the frames, defaults to 1 (no downsampling).
+    :type downsample_factor: int, optional
+    :param max_iter: Maximum number of iterations for the clustering algorithm, defaults to 10.
+    :type max_iter: int, optional
+    :param n_jobs: Number of parallel jobs to run, defaults to 1.
+    :type n_jobs: int, optional
     :return: Defect map indicating cluster labels for each pixel.
     :rtype: numpy.ndarray
     """
     try:
-        logger.info("Starting DTW clustering for defect detection")
         from tslearn.clustering import TimeSeriesKMeans
         from tslearn.metrics import cdist_dtw
+        logger.info("Starting DTW clustering for defect detection")
+        
+        # Downsample the frames if needed
+        if downsample_factor > 1:
+            T = T[:, :, ::downsample_factor]
+            logger.info(f"Downsampled frames by a factor of {downsample_factor}")
+        
         height, width, frames = T.shape
-        T_reshaped = T.reshape(-1, frames)
+        T_reshaped = T.reshape(-1, frames).astype(np.float32)  # Use float32 to save memory
 
-        # Perform clustering
-        km_dtw = TimeSeriesKMeans(n_clusters=n_clusters, metric="dtw", max_iter=10, n_jobs=-1)
-        cluster_labels = km_dtw.fit_predict(T_reshaped)
+        # Optional: Normalize the time series to have zero mean and unit variance
+        T_mean = T_reshaped.mean(axis=1, keepdims=True)
+        T_std = T_reshaped.std(axis=1, keepdims=True) + 1e-8  # Avoid division by zero
+        T_normalized = (T_reshaped - T_mean) / T_std
+
+        logger.info(f"Data reshaped to {T_normalized.shape}")
+
+        # Perform clustering with limited parallelism
+        km_dtw = TimeSeriesKMeans(
+            n_clusters=n_clusters, 
+            metric="dtw", 
+            max_iter=max_iter, 
+            n_jobs=n_jobs,  # Limit the number of parallel jobs
+            verbose=True,    # Enable verbosity for progress tracking
+            random_state=42  # For reproducibility
+        )
+        cluster_labels = km_dtw.fit_predict(T_normalized)
 
         # Reshape cluster labels into image
         defect_map = cluster_labels.reshape(height, width)
-        logger.info("DTW clustering completed")
+        logger.info("DTW clustering completed successfully")
         return defect_map
+    except MemoryError:
+        logger.error("MemoryError: The operation ran out of memory. Consider reducing data size or parameters.")
+        return None
     except Exception as e:
         logger.error(f"Error in dtw_clustering_defect_detection: {e}")
         return None
