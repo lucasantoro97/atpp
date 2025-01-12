@@ -799,8 +799,8 @@ def independent_component_thermography(T, n_components=5, pca_components=50):
     :type n_components: int, optional
     :param pca_components: Number of PCA components to retain, defaults to 50.
     :type pca_components: int, optional
-    :return: Reconstructed thermal signal array with independent components.
-    :rtype: numpy.ndarray
+    :return: List of independent component images.
+    :rtype: List[numpy.ndarray]
     """
     try:
         from sklearn.decomposition import PCA, FastICA
@@ -808,8 +808,8 @@ def independent_component_thermography(T, n_components=5, pca_components=50):
         height, width, frames = T.shape
         gc.collect()
 
-        # Reshape data to (frames, pixels)
-        data = T.reshape(-1, frames).astype(np.float32).T  # Shape: (frames, pixels)
+        # Reshape data to 2D array of pixels x frames
+        data = T.reshape((height * width, frames)).astype(np.float32)
         logger.info(f"Data reshaped to {data.shape} and converted to float32")
 
         del T
@@ -817,26 +817,26 @@ def independent_component_thermography(T, n_components=5, pca_components=50):
 
         # Perform PCA to reduce dimensionality
         pca = PCA(n_components=pca_components, random_state=0, svd_solver='randomized')
-        data_pca = pca.fit_transform(data)  # Shape: (frames, pca_components)
+        data_pca = pca.fit_transform(data)
         logger.info(f"PCA completed with {pca_components} components")
         del data
         gc.collect()
 
         # Perform ICA on PCA-reduced data
         ica = FastICA(n_components=n_components, random_state=0, max_iter=200, tol=0.0001)
-        independent_components = ica.fit_transform(data_pca)  # Shape: (frames, n_components)
+        components = ica.fit_transform(data_pca)
         logger.info("ICA completed")
         del data_pca
         gc.collect()
 
-        # Reconstruct from ICA
-        reconstructed_pca = ica.inverse_transform(independent_components)  # Shape: (frames, pca_components)
-        reconstructed_data = pca.inverse_transform(reconstructed_pca)  # Shape: (frames, pixels)
-        logger.info("Reconstruction completed")
-
-        # Reshape reconstructed_data to original shape (height, width, frames)
-        reconstructed_data = reconstructed_data.T.reshape(height, width, frames)
-        return reconstructed_data
+        # Reshape components into separate images
+        ic_images = []
+        for i in range(n_components):
+            component = components[:, i].reshape(height, width)
+            ic_images.append(component)
+        
+        logger.info(f"Generated {len(ic_images)} independent component images")
+        return ic_images
 
     except MemoryError:
         logger.error("MemoryError: The system ran out of memory during independent component thermography.")

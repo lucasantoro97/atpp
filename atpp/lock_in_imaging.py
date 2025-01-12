@@ -102,7 +102,7 @@ def calculate_centroid(amplitude, threshold):
     centroid_y = np.sum(np.arange(amplitude.shape[0]) * np.sum(largest_mask, axis=1)) / np.sum(largest_mask)
     
     logger.info(f"Centroid calculated at ({centroid_x}, {centroid_y})")
-    return centroid_x, centroid_y
+    return int(centroid_x), int(centroid_y)
 
 def mask_data(amplitude, threshold):
     """

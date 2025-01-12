@@ -8,3 +8,5 @@ atpp/__pycache__/
 rsw.py
 ThernessLibCore.log
 flying_spot_reconstruction.py
+jtech_analysis.py
+jtech_analysis_modified.py
