@@ -7,6 +7,8 @@ from atpp.logging_config import logger
 import tempfile
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
+import psutil
+import platform
 
 # Move init_worker and process_frame to the module level
 def init_worker(init_args):
@@ -51,7 +53,10 @@ def load_flir_video(file_name, MEMMAP=None, emissivity=None, reflected_temp=None
     #Get file size
     file_size = os.path.getsize(file_name)
     #Get available RAM
-    available_RAM = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+    if platform.system() == 'Windows':
+        available_RAM = psutil.virtual_memory().available
+    else:
+        available_RAM = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
 
     if MEMMAP is None:
         if available_RAM/10 > file_size:
@@ -97,10 +102,10 @@ def load_flir_video(file_name, MEMMAP=None, emissivity=None, reflected_temp=None
     if memmap_flag:
         temp_dir = tempfile.gettempdir()
         temp_file_path = os.path.join(temp_dir, f"{os.path.basename(file_name)}.dat")
-        temperature = np.memmap(temp_file_path, dtype=np.float16, mode='w+', shape=(height, width, num_frames))
+        temperature = np.memmap(temp_file_path, dtype=np.float32, mode='w+', shape=(height, width, num_frames))
         logger.info("Data imported on disk")
     else:
-        temperature = np.empty((height, width, num_frames), dtype=np.float16)
+        temperature = np.empty((height, width, num_frames), dtype=np.float32)
 
     time = np.empty(num_frames, dtype=np.float64)
 
@@ -122,6 +127,10 @@ def load_flir_video(file_name, MEMMAP=None, emissivity=None, reflected_temp=None
     for i, time_i, temperature_i in results:
         time[i] = time_i
         temperature[:, :, i] = temperature_i
+
+    # Ensure memmap data is flushed to disk
+    if memmap_flag:
+        temperature.flush()
 
     framerate = num_frames / time[-1] if time[-1] != 0 else 0
 
