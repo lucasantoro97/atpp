@@ -58,13 +58,7 @@ def load_flir_video(file_name, MEMMAP=None, emissivity=None, reflected_temp=None
     else:
         available_RAM = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
 
-    if MEMMAP is None:
-        if available_RAM/10 > file_size:
-            memmap_flag = False
-        else:
-            memmap_flag = True
-    else:
-        memmap_flag = MEMMAP
+    memmap_flag = available_RAM/10 <= file_size if MEMMAP is None else MEMMAP
     
     # Print available RAM and file size ratio
     available_RAM_MB = available_RAM / (1024 ** 2)
