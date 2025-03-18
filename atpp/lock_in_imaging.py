@@ -188,14 +188,17 @@ def find_se_frames(T, fs):
     # Check if any rising edges are detected
     if rising_indices.size == 0:
         logger.warning("Could not detect the start frame based on the derivative threshold.")
-        start_frame = None
+        # If we can't detect a start frame, use a default value (e.g., first frame)
+        start_frame = 0
+        logger.info(f"Using default start frame: {start_frame}")
     else:
         start_frame = rising_indices[0] + 1  # Correct for diff offset
         # Then find the first local maximum after the start frame
         peaks, _ = find_peaks(T_mean_smooth[start_frame:], height=0)
         if peaks.size == 0:
             logger.warning("Could not detect the start frame based on peaks after threshold.")
-            start_frame = None
+            start_frame = 0
+            logger.info(f"Using default start frame: {start_frame}")
         else:
             start_frame = start_frame + peaks[0]
             logger.info(f"Start frame detected at index {start_frame}")
@@ -209,8 +212,9 @@ def find_se_frames(T, fs):
     above_end_threshold = T_mean >= end_threshold_value
 
     if not np.any(above_end_threshold):
-        end_frame = None
-        logger.warning("Could not detect the end frame based on the end threshold.")
+        # If we can't detect an end frame, use the last frame
+        end_frame = len(T_mean) - 1
+        logger.warning(f"Could not detect the end frame based on the end threshold. Using last frame: {end_frame}")
     else:
         end_indices = np.where(above_end_threshold)[0]
         end_frame = end_indices[-1]
